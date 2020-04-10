@@ -14,11 +14,10 @@ import java.util.Optional;
 @Repository
 public interface SymbolRepository extends MongoRepository<Symbol, String>{
 
-    Optional<Symbol> findBySymbol(String symbol);
-    Optional<Symbol> findByAlias(String alias);
+    List<Symbol> findBySymbol(String symbol);
+    List<Symbol> findByAlias(String alias);
     List<Symbol> deleteBySymbol(String symbol);
-    List<Symbol> findByCreateDateBefore(Date date);
-    List<Symbol> findByCreateDateAfter(Date date);
-
+    Optional<List<Symbol>>findByCreateDateBefore(Date date);
+    Optional<List<Symbol>> findByCreateDateAfter(Date date);    
 
 }

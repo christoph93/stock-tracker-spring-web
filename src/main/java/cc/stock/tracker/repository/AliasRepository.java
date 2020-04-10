@@ -12,7 +12,6 @@ import java.util.Optional;
 @Repository
 public interface AliasRepository extends MongoRepository<Alias, String>{
 
-
     Optional<List<Alias>> findByAlias(String alias);
     Optional<List<Alias>> findBySymbol(String symbol);
 

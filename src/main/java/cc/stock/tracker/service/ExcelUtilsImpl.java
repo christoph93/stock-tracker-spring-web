@@ -45,12 +45,12 @@ public class ExcelUtilsImpl implements ExcelUtils {
 	}
 	
 
-	public ArrayList<Transaction> readTransactionsExcel(String path) throws NumberFormatException, ParseException {
+	private ArrayList<Transaction> readTransactionsExcel(String path) throws NumberFormatException, ParseException {
 		ArrayList<String[]> table;
 		String line = "";
 		ArrayList<Transaction> transactions = new ArrayList<>();
 
-		System.out.println("Calling readFile");
+//		System.out.println("Calling readFile");
 
 		table = transactionTableAsArrayList(path);
 		/*
@@ -83,7 +83,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	}
 
-	public ArrayList<String[]> transactionTableAsArrayList(String filePath) {
+	private ArrayList<String[]> transactionTableAsArrayList(String filePath) {
 
 		String cellVal;
 		String line;
@@ -128,7 +128,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 					}
 
 					if (cellVal.contains("Data Negócio")) {
-						System.out.println("Found beginning of table!");
+//						System.out.println("Found beginning of table!");
 						tableStartColIndex = currentCell.getColumnIndex();
 						tableEndColIndex = tableStartColIndex + 9;
 						foundTable = true;
@@ -137,7 +137,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 					line += cellVal + " ";
 
 					if (foundTable && currentCell.getColumnIndex() == tableStartColIndex && cellVal.equals("--#")) {
-						System.out.println("Found end of table!");
+//						System.out.println("Found end of table!");
 						foundTable = false;
 					}
 				}
