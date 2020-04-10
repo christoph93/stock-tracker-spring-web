@@ -1,103 +1,88 @@
 package cc.stock.tracker.document;
 
-
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.TreeMap;
 
 @Document
 public class Symbol {
 
-    @Id
-    private String id;
+	@Id
+	private String id;
 
-    transient private Object fullContent;
-    transient private Object closingPrices;
-    private Date createDate;
-    private String symbol, alias;
-    private double lastPrice;
-    private Date lastPriceDate;
+	transient private TreeMap<Date, Double> closingPrices;
+	private Date createDate;
+	private String symbol, alias;
+	private double lastPrice;
+	private Date lastPriceDate;
 
-    public Symbol(Object fullContent, Date createDate, String symbol) {
-        this.fullContent = fullContent;
-        this.createDate = createDate;
-        this.symbol = symbol;
-        this.alias = symbol;
-    }
+	public Symbol(Object closingPrices, Date createDate, String symbol) {
+		this.createDate = createDate;
+		this.symbol = symbol;
+		this.alias = symbol;
+	}
 
-    public String getAlias() {
-        return alias;
-    }
+	public String getAlias() {
+		return alias;
+	}
 
-    public void setAlias(String alias) {
-        this.alias = alias;
-    }
+	public void setAlias(String alias) {
+		this.alias = alias;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public Object getClosingPrices() {
-        return closingPrices;
-    }
+	public TreeMap<Date, Double> getClosingPrices() {
+		return closingPrices;
+	}
 
-    public void setClosingPrices(Object closingPrices) {
-        this.closingPrices = closingPrices;
-    }
+	public void setClosingPrices(TreeMap<Date, Double> closingPrices) {
+		this.closingPrices = closingPrices;
+	}
 
-    public Object getFullContent() {
-        return fullContent;
-    }
+	public Date getCreateDate() {
+		return createDate;
+	}
 
-    public void setFullContent(Object fullContent) {
-        this.fullContent = fullContent;
-    }
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
 
-    public Date getCreateDate() {
-        return createDate;
-    }
+	public String getSymbol() {
+		return symbol;
+	}
 
-    public void setCreateDate(Date createDate) {
-        this.createDate = createDate;
-    }
+	public void setSymbol(String symbol) {
+		this.symbol = symbol;
+	}
 
-    public String getSymbol() {
-        return symbol;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public void setSymbol(String symbol) {
-        this.symbol = symbol;
-    }
+	public double getLastPrice() {
+		return lastPrice;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setLastPrice(double lastPrice) {
+		this.lastPrice = lastPrice;
+	}
 
-    public double getLastPrice() {
-        return lastPrice;
-    }
+	public Date getLastPriceDate() {
+		return lastPriceDate;
+	}
 
-    public void setLastPrice(double lastPrice) {
-        this.lastPrice = lastPrice;
-    }
+	public void setLastPriceDate(Date lastPriceDate) {
+		this.lastPriceDate = lastPriceDate;
+	}
 
-    public Date getLastPriceDate() {
-        return lastPriceDate;
-    }
-
-    public void setLastPriceDate(Date lastPriceDate) {
-        this.lastPriceDate = lastPriceDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Symbol{" +
-                "id='" + id + '\'' +
-                ", content='" + fullContent + '\'' +
-                ", createDate=" + createDate +
-                ", symbol='" + symbol + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "Symbol{" + "id='" + id + '\'' + '\'' + ", createDate=" + createDate + ", symbol='" + symbol + '\''
+				+ '}';
+	}
 }

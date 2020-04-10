@@ -33,8 +33,8 @@ public class StockTrackerApplication {
 	
 	
 	@PostConstruct
-	public void testRestCall() {
-		alphaVantageImpl.getClosginPrices("VALE3.SAO");
+	public void testClosingPrices() {
+		symbolUtilsImpl.createSymbolsFromTransactions();
 	}
 	
 	

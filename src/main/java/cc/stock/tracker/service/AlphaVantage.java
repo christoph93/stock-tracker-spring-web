@@ -1,11 +1,10 @@
 package cc.stock.tracker.service;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.TreeMap;
 
 public interface AlphaVantage {
 	
-	public HashMap<String, Double> getClosginPrices(String symbol);
+	public TreeMap<Date, Double> getClosginPrices(String symbol);
 
 }

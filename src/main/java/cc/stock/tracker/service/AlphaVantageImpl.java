@@ -1,10 +1,14 @@
 package cc.stock.tracker.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -33,11 +37,10 @@ public class AlphaVantageImpl implements AlphaVantage {
 	@Value("${cc.stocktrackerapi.alphavantage.outputSize}")
 	private String outputSize;
 
-	public LinkedHashMap<String, Double> getClosginPrices(String symbol) {
-		LinkedHashMap<String, Double> closingPrices = new LinkedHashMap<String, Double>();
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	public TreeMap<Date, Double> getClosginPrices(String symbol) {
+		TreeMap<Date, Double> closingPrices = new TreeMap<Date, Double>();		
 
-		String urlString = String.format(urlPattern, timeSeries, symbol, outputSize, apiKey);
+		String urlString = String.format(urlPattern, timeSeries, symbol + ".SAO", outputSize, apiKey);
 
 		RestTemplate restTemplate = new RestTemplate();
 
@@ -46,12 +49,17 @@ public class AlphaVantageImpl implements AlphaVantage {
 
 		JsonObject dailyPrices = jsonObject.getAsJsonObject(timeSeriesString);
 
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
 		dailyPrices.keySet().forEach(key -> {
-			closingPrices.put(key, dailyPrices.get(key).getAsJsonObject().get("4. close").getAsDouble());
+			try {
+				closingPrices.put(formatter.parse(key),
+						dailyPrices.get(key).getAsJsonObject().get("4. close").getAsDouble());
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 
 		});
-
-		System.out.println(closingPrices);
 
 		return closingPrices;
 
