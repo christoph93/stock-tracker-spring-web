@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import cc.stock.tracker.service.AlphaVantageImpl;
 import cc.stock.tracker.service.ExcelUtilsImpl;
 import cc.stock.tracker.service.SymbolUtils;
 import cc.stock.tracker.service.SymbolUtilsImpl;
@@ -22,6 +23,9 @@ public class StockTrackerApplication {
 	
 	@Autowired
 	private SymbolUtilsImpl symbolUtilsImpl;
+	
+	@Autowired
+	private AlphaVantageImpl alphaVantageImpl;
 
 	public static void main(String[] args) {
 		SpringApplication.run(StockTrackerApplication.class, args);
@@ -29,21 +33,27 @@ public class StockTrackerApplication {
 	
 	
 	@PostConstruct
-	public void saveTransactionsToMongo() {
-		try {
-			excelUtilsImpl.saveTransactionsToMongo("./transactions.xls").forEach(line -> System.out.println(line.toString()));
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
+	public void testRestCall() {
+		alphaVantageImpl.getClosginPrices("VALE3.SAO");
 	}
 	
 	
-	@Scheduled(fixedDelay = 60000, initialDelay = 5000)
-	public void updateAliases() {
-//		symbolUtilsImpl.updateSymbolAliases();
-		symbolUtilsImpl.createSymbolsFromTransactions();
-		
-	}
+//	@PostConstruct
+//	public void saveTransactionsToMongo() {
+//		try {
+//			excelUtilsImpl.saveTransactionsToMongo("./transactions.xls").forEach(line -> System.out.println(line.toString()));
+//		} catch (NumberFormatException e) {
+//			e.printStackTrace();
+//		}
+//	}
+	
+	
+//	@Scheduled(fixedDelay = 60000, initialDelay = 5000)
+//	public void updateAliases() {
+////		symbolUtilsImpl.updateSymbolAliases();
+//		symbolUtilsImpl.createSymbolsFromTransactions();
+//		
+//	}
 	
 	
 
