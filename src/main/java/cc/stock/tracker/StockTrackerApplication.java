@@ -8,7 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+import cc.stock.tracker.document.Position;
 import cc.stock.tracker.service.ExcelUtilsImpl;
+import cc.stock.tracker.service.PositionUtilsImpl;
 import cc.stock.tracker.service.SymbolUtilsImpl;
 
 @SpringBootApplication
@@ -20,10 +22,14 @@ public class StockTrackerApplication {
 
 	@Autowired
 	private SymbolUtilsImpl symbolUtilsImpl;
+	
+	@Autowired
+	private PositionUtilsImpl positionUtilsImpl;
 
 	public static void main(String[] args) {
 		SpringApplication.run(StockTrackerApplication.class, args);
 	}
+	
 
 	@PostConstruct
 	public void init() {
@@ -35,6 +41,10 @@ public class StockTrackerApplication {
 
 		System.out.println("Updating aliases");
 		symbolUtilsImpl.updateSymbolAliases();
+		
+		Position position = new Position("EQPA3"); 
+		
+		positionUtilsImpl.update(position);
 	}
 
 	@Scheduled(fixedDelay = 60000, initialDelay = 60000)
