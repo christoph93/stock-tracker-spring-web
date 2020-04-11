@@ -2,6 +2,8 @@ package cc.stock.tracker.repository;
 
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +19,9 @@ public interface SymbolRepository extends MongoRepository<Symbol, String>{
     List<Symbol> findBySymbol(String symbol);
     List<Symbol> findByAlias(String alias);
     List<Symbol> deleteBySymbol(String symbol);
-    Optional<List<Symbol>>findByCreateDateBefore(Date date);
-    Optional<List<Symbol>> findByCreateDateAfter(Date date);    
+    Optional<List<Symbol>>findByUpdateDateBefore(Date updateDate);
+    Optional<List<Symbol>> findByUpdateDateAfter(Date updateDate);
+    
+    Page<Symbol> findAll(Pageable pageable);
 
 }

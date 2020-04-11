@@ -5,6 +5,6 @@ import java.util.TreeMap;
 
 public interface AlphaVantage {
 	
-	public TreeMap<Date, Double> getClosginPrices(String symbol);
+	public TreeMap<String, Double> getClosginPrices(String symbol);
 
 }

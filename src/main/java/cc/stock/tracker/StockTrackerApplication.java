@@ -2,7 +2,6 @@ package cc.stock.tracker;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import cc.stock.tracker.service.AlphaVantageImpl;
 import cc.stock.tracker.service.ExcelUtilsImpl;
-import cc.stock.tracker.service.SymbolUtils;
 import cc.stock.tracker.service.SymbolUtilsImpl;
 
 @SpringBootApplication
@@ -33,27 +31,40 @@ public class StockTrackerApplication {
 	
 	
 	@PostConstruct
-	public void testClosingPrices() {
-		symbolUtilsImpl.createSymbolsFromTransactions();
+	public void init() {
+		System.out.println("Saving transactions to mongo");
+		saveTransactionsToMongo();
+		
+		System.out.println("Creating symbols from transactions");
+		symbolUtilsImpl.createMissingSymbolsFromTransactions();
+		
+		System.out.println("Updating aliases");
+		symbolUtilsImpl.updateSymbolAliases();
 	}
 	
 	
-//	@PostConstruct
-//	public void saveTransactionsToMongo() {
-//		try {
-//			excelUtilsImpl.saveTransactionsToMongo("./transactions.xls").forEach(line -> System.out.println(line.toString()));
-//		} catch (NumberFormatException e) {
-//			e.printStackTrace();
-//		}
-//	}
+	@Scheduled(fixedDelay = 60000, initialDelay = 60000)
+	public void updateAliases() {
+		System.out.println("Schedule: updating aliases");
+		symbolUtilsImpl.updateSymbolAliases();
+	}
 	
 	
-//	@Scheduled(fixedDelay = 60000, initialDelay = 5000)
-//	public void updateAliases() {
-////		symbolUtilsImpl.updateSymbolAliases();
-//		symbolUtilsImpl.createSymbolsFromTransactions();
-//		
-//	}
+	@Scheduled(fixedDelay = 65000, initialDelay = 10000)
+	public void updateClosingPrices() {
+		System.out.println("Schedule: updating closing prices (5)");
+		symbolUtilsImpl.updateOldestClosingPrices(5);
+	}
+	
+	public void saveTransactionsToMongo() {
+		try {
+			excelUtilsImpl.saveTransactionsToMongo("./transactions.xls").forEach(line -> System.out.println(line.toString()));
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	
 	
 

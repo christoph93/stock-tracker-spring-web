@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.TreeMap;
 
 @Document
@@ -12,14 +13,14 @@ public class Symbol {
 	@Id
 	private String id;
 
-	transient private TreeMap<Date, Double> closingPrices;
-	private Date createDate;
+	transient private Map<String, Double> closingPrices;
+	private Date updateDate;
 	private String symbol, alias;
 	private double lastPrice;
 	private Date lastPriceDate;
 
-	public Symbol(Object closingPrices, Date createDate, String symbol) {
-		this.createDate = createDate;
+	public Symbol(Map<String, Double> closingPrices, Date updateDate, String symbol) {
+		this.updateDate = updateDate;
 		this.symbol = symbol;
 		this.alias = symbol;
 	}
@@ -36,20 +37,20 @@ public class Symbol {
 		return id;
 	}
 
-	public TreeMap<Date, Double> getClosingPrices() {
+	public Map<String, Double> getClosingPrices() {
 		return closingPrices;
 	}
 
-	public void setClosingPrices(TreeMap<Date, Double> closingPrices) {
+	public void setClosingPrices(Map<String, Double> closingPrices) {
 		this.closingPrices = closingPrices;
 	}
 
-	public Date getCreateDate() {
-		return createDate;
+	public Date getUpdateDate() {
+		return updateDate;
 	}
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
 	}
 
 	public String getSymbol() {
@@ -82,7 +83,7 @@ public class Symbol {
 
 	@Override
 	public String toString() {
-		return "Symbol{" + "id='" + id + '\'' + '\'' + ", createDate=" + createDate + ", symbol='" + symbol + '\''
+		return "Symbol{" + "id='" + id + '\'' + '\'' + ", updateDate=" + updateDate + ", symbol='" + symbol + '\''
 				+ '}';
 	}
 }
