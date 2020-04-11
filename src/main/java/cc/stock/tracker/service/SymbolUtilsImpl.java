@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -60,8 +58,7 @@ public class SymbolUtilsImpl implements SymbolUtils {
 
 			} else {
 				symbols.forEach(symbol -> {
-					symbol.setAlias(alias.getAlias());
-					Symbol temp = symbolRepository.save(symbol);
+					symbol.setAlias(alias.getAlias());				
 					System.out.println(
 							"Updated symbol alias for symbol " + symbol.getSymbol() + " to " + symbol.getAlias());
 				});

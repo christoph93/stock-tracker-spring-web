@@ -48,7 +48,6 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	private ArrayList<Transaction> readTransactionsExcel(String path) throws NumberFormatException, ParseException {
 		ArrayList<String[]> table;
-		String line = "";
 		ArrayList<Transaction> transactions = new ArrayList<>();
 
 //		System.out.println("Calling readFile");
