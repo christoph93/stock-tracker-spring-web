@@ -22,14 +22,13 @@ public class StockTrackerApplication {
 
 	@Autowired
 	private SymbolUtilsImpl symbolUtilsImpl;
-	
+
 	@Autowired
 	private PositionUtilsImpl positionUtilsImpl;
 
 	public static void main(String[] args) {
 		SpringApplication.run(StockTrackerApplication.class, args);
 	}
-	
 
 	@PostConstruct
 	public void init() {
@@ -41,13 +40,9 @@ public class StockTrackerApplication {
 
 		System.out.println("Updating aliases");
 		symbolUtilsImpl.updateSymbolAliases();
-		
-		Position position = new Position("EQPA3"); 
-		
-		positionUtilsImpl.update(position);
 	}
 
-	@Scheduled(fixedDelay = 60000, initialDelay = 60000)
+	@Scheduled(fixedDelay = 120000, initialDelay = 120000)
 	public void updateAliases() {
 		System.out.println("Schedule: updating aliases");
 		symbolUtilsImpl.updateSymbolAliases();
@@ -57,6 +52,12 @@ public class StockTrackerApplication {
 	public void updateClosingPrices() {
 		System.out.println("Schedule: updating closing prices (5)");
 		symbolUtilsImpl.updateOldestClosingPrices(5);
+	}
+
+	@Scheduled(fixedDelay = 120000, initialDelay = 20000)
+	public void updatePositions() {
+		System.out.println("Schedule: updating positions");
+		positionUtilsImpl.updatePositions();
 	}
 
 	public void saveTransactionsToMongo() {

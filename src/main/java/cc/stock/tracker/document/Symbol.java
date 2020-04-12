@@ -18,10 +18,10 @@ public class Symbol {
 	private double lastPrice;
 	private Date lastPriceDate;
 
-	public Symbol(Map<String, Double> closingPrices, Date updateDate, String symbol) {
+	public Symbol(Map<String, Double> closingPrices, Date updateDate, String symbol, String alias) {
 		this.updateDate = updateDate;
 		this.symbol = symbol;
-		this.alias = symbol;
+		this.alias = alias;
 	}
 
 	public String getAlias() {

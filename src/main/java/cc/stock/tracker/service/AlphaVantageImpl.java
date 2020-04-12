@@ -37,6 +37,11 @@ public class AlphaVantageImpl implements AlphaVantage {
 
 		String result = restTemplate.getForObject(urlString, String.class);
 		JsonObject jsonObject = new Gson().fromJson(result, JsonObject.class);
+		
+		if(!jsonObject.has("Meta Data")){
+            System.out.println("Response did not contain Meta Data. Returning");
+            return new TreeMap<String, Double>();
+        }
 
 //		System.out.println(jsonObject.toString());
 

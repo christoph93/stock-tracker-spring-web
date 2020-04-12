@@ -14,8 +14,8 @@ public class Position {
 
 	private String symbol;
 	private double avgBuyPrice, avgSellPrice, totalUnitsBought, totalUnitsSold, totalPositionBought, totalPositionSold,
-			profitFromSales, profitLossPercent, profitLossValue, openPosition, currentOwnedUnits, closedPosition,
-			currentPrice, totalDividends;
+			result, resultPercent, profitLossFromSales, openPosition, currentOwnedUnits, closedPosition, currentPrice,
+			totalDividends;
 	transient List<Transaction> transactions;
 	private String state;
 	private Date lastUpdateDate;
@@ -88,20 +88,20 @@ public class Position {
 		this.lastUpdateDate = lastUpdateDate;
 	}
 
-	public double getProfitFromSales() {
-		return profitFromSales;
+	public double getResult() {
+		return result;
 	}
 
-	public void setProfitFromSales(double profitFromSales) {
-		this.profitFromSales = profitFromSales;
+	public void setResult(double result) {
+		this.result = result;
 	}
 
-	public double getProfitLossPercent() {
-		return profitLossPercent;
+	public double getResultPercent() {
+		return resultPercent;
 	}
 
-	public void setProfitLossPercent(double profitPercent) {
-		this.profitLossPercent = profitPercent;
+	public void setResultPercent(double resultPercent) {
+		this.resultPercent = resultPercent;
 	}
 
 	public double getTotalUnitsBought() {
@@ -168,12 +168,12 @@ public class Position {
 		this.transactions = transactions;
 	}
 
-	public double getProfitLossValue() {
-		return profitLossValue;
+	public double getProfitLossFromSales() {
+		return profitLossFromSales;
 	}
 
-	public void setProfitLossValue(double profitLossValue) {
-		this.profitLossValue = profitLossValue;
+	public void setProfitLossFromSales(double profitLossFromSales) {
+		this.profitLossFromSales = profitLossFromSales;
 	}
 
 	@Override
@@ -181,12 +181,9 @@ public class Position {
 		return "Position [id=" + id + ", symbol=" + symbol + ", avgBuyPrice=" + avgBuyPrice + ", avgSellPrice="
 				+ avgSellPrice + ", totalUnitsBought=" + totalUnitsBought + ", totalUnitsSold=" + totalUnitsSold
 				+ ", totalPositionBought=" + totalPositionBought + ", totalPositionSold=" + totalPositionSold
-				+ ", profitFromSales=" + profitFromSales + ", profitLossPercent=" + profitLossPercent
-				+ ", profitLossValue=" + profitLossValue + ", openPosition=" + openPosition + ", currentOwnedUnits="
-				+ currentOwnedUnits + ", closedPosition=" + closedPosition + ", currentPrice=" + currentPrice
-				+ ", totalDividends=" + totalDividends + ", state=" + state + ", lastUpdateDate=" + lastUpdateDate
-				+ "]";
+				+ ", result=" + result + ", resultPercent=" + resultPercent + ", profitLossFromSales="
+				+ profitLossFromSales + ", openPosition=" + openPosition + ", currentOwnedUnits=" + currentOwnedUnits
+				+ ", closedPosition=" + closedPosition + ", currentPrice=" + currentPrice + ", totalDividends="
+				+ totalDividends + ", state=" + state + ", lastUpdateDate=" + lastUpdateDate + "]";
 	}
-	
-	
 }

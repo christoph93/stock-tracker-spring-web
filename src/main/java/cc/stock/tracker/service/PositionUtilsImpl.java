@@ -1,10 +1,15 @@
 package cc.stock.tracker.service;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import cc.stock.tracker.document.Alias;
@@ -12,6 +17,7 @@ import cc.stock.tracker.document.Position;
 import cc.stock.tracker.document.Symbol;
 import cc.stock.tracker.document.Transaction;
 import cc.stock.tracker.repository.AliasRepository;
+import cc.stock.tracker.repository.PositionRepository;
 import cc.stock.tracker.repository.SymbolRepository;
 import cc.stock.tracker.repository.TransactionRepository;
 
@@ -27,8 +33,34 @@ public class PositionUtilsImpl implements PositionUtils {
 	@Autowired
 	private SymbolRepository symbolRepository;
 
+	@Autowired
+	private PositionRepository positionRepository;
+
 	private List<Transaction> transactionList;
 	private Position position;
+
+	/*
+	 * Update oldest {count} positions. Create missing positions from symbols.
+	 */
+	public void updatePositions() {
+		HashSet<String> symbols = new HashSet<>();
+		symbolRepository.findAll().forEach(s -> {
+			symbols.add(s.getAlias());
+		});
+
+		List<Position> positions = positionRepository.findAll();
+
+		positions.forEach(p -> {
+			symbols.remove(p.getSymbol());
+			update(p);
+		});
+
+		symbols.forEach(s -> {
+			System.out.println("Creating new position for " + s);
+			positionRepository.save(new Position(s));
+		});
+
+	}
 
 	/*
 	 * update all fields based on transactions and current prices
@@ -59,7 +91,9 @@ public class PositionUtilsImpl implements PositionUtils {
 
 		updateCurrentPosition();
 
-		System.out.println(this.position.toString());
+		positionRepository.save(this.position);
+
+		System.out.println("Updated position: " + positionRepository.findById(this.position.getId()));
 
 	}
 
@@ -106,36 +140,45 @@ public class PositionUtilsImpl implements PositionUtils {
 
 		double currentOwnedUnits = this.position.getTotalUnitsBought() - this.position.getTotalUnitsSold();
 
-		System.out.println("HALP");
-
 		double profitLoss;
 		double profitLossPercent;
+		
+		/*
+		 * TODO: review these formulas.
+		 */
 
 		if (currentOwnedUnits > 0) {
 			this.position.setState("Open");
 			this.position.setCurrentOwnedUnits(currentOwnedUnits);
 			this.position.setOpenPosition(currentOwnedUnits * temp.get(0).getLastPrice());
-			profitLoss = (this.position.getTotalUnitsSold() * this.position.getAvgSellPrice()
-					- this.position.getTotalUnitsBought() * this.position.getAvgBuyPrice()
-					+ (this.position.getCurrentPrice() * this.position.getCurrentOwnedUnits()));
+			profitLoss =
+					// profit/loss from sales
+					(position.getAvgBuyPrice() * position.getTotalUnitsSold()
+							- position.getAvgSellPrice() * position.getTotalUnitsSold());
 
-			this.position.setProfitLossValue(profitLoss);
+			this.position.setProfitLossFromSales(profitLoss);
 
-			profitLossPercent = profitLoss / this.position.getTotalPositionBought() * 100;
+			this.position.setResult(this.position.getOpenPosition() + position.getProfitLossFromSales()
+					- (position.getTotalPositionBought() - position.getTotalPositionSold()));
 
-			this.position.setProfitLossPercent(profitLossPercent);
+//			this.position.setResult((this.position.getTotalUnitsSold() * this.position.getAvgSellPrice())
+//					- (this.position.getTotalUnitsSold() * this.position.getAvgBuyPrice())
+//					+ (( this.position.getAvgBuyPrice() * this.position.getCurrentOwnedUnits() - this.position.getOpenPosition()) ) );
+
+			profitLossPercent = this.position.getResult() / this.position.getTotalPositionBought() * 100;
+
+			this.position.setResultPercent(profitLossPercent);
 
 		} else {
 			this.position.setState("Closed");
 			this.position.setCurrentOwnedUnits(currentOwnedUnits);
 			profitLoss = this.position.getTotalPositionBought() - this.position.getTotalPositionSold();
 			this.position.setClosedPosition(profitLoss);
+			this.position.setResult(this.position.getTotalPositionSold() - this.position.getTotalPositionBought());
 
 		}
-		
-		/*
-		 * TODO: check issue with symbols {alias : {$in : ["RBED11", "EQPA3"] }} 
-		 */
+
+		this.position.setLastUpdateDate(Date.from(Instant.now()));
 
 	}
 

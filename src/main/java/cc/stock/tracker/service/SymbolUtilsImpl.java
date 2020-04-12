@@ -3,6 +3,7 @@ package cc.stock.tracker.service;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,11 +55,12 @@ public class SymbolUtilsImpl implements SymbolUtils {
 		aliases.forEach(alias -> {
 			List<Symbol> symbols = symbolRepository.findBySymbol(alias.getSymbol());
 			if (symbols.isEmpty()) {
-				System.out.println("No symbols found for Alias " + alias.getAlias());
+				System.out.println("No symbols found for Alias " + alias.getAlias() + ". Creating...");
+				symbolRepository.save(new Symbol(null, Date.from(Instant.now()), alias.getSymbol(), alias.getAlias()));
 
 			} else {
 				symbols.forEach(symbol -> {
-					symbol.setAlias(alias.getAlias());				
+					symbol.setAlias(alias.getAlias());
 					System.out.println(
 							"Updated symbol alias for symbol " + symbol.getSymbol() + " to " + symbol.getAlias());
 				});
@@ -74,25 +76,41 @@ public class SymbolUtilsImpl implements SymbolUtils {
 	 * of doing it in java
 	 */
 	public void createMissingSymbolsFromTransactions() {
-		HashSet<String> distinctAliasesFromTransactions = new HashSet<String>();
-		HashSet<String> existingSymbols = new HashSet<String>();
+		HashSet<String> distinctSymbolsFromTransactions = new HashSet<String>();
+		List<Alias> aliases = new ArrayList<Alias>();
 
-//		symbolRepository.findAll().forEach(symbol -> {
-//			existingSymbols.add(symbol.getAlias());
-//		});
+		transactionRepository.findAll()
+				.forEach(transaction -> distinctSymbolsFromTransactions.add(transaction.getSymbol()));
 
-		transactionRepository.findAll().forEach(
-				transaction -> distinctAliasesFromTransactions.add(getAliasFromSymbol(transaction.getSymbol())));
+		System.out.println("Symbols from transactions: " + distinctSymbolsFromTransactions);
 
-		System.out.println("Aliases from transactions: " + distinctAliasesFromTransactions);
-		System.out.println("Existing aliases: " + existingSymbols);
+		distinctSymbolsFromTransactions.forEach(s -> {
+			aliases.addAll(aliasRepository.findBySymbol(s));
+		});
 
-		distinctAliasesFromTransactions.removeAll(existingSymbols);
+		System.out.println("Aliases for above symbols: ");
+		aliases.forEach(a -> System.out.println(a.getSymbol() + " -> " + a.getAlias()));
 
-		System.out.println("Missing aliases : " + distinctAliasesFromTransactions);
+		aliases.forEach(a -> {
+			distinctSymbolsFromTransactions.remove(a.getSymbol());
+			distinctSymbolsFromTransactions.add(a.getAlias());
+		});
 
-		distinctAliasesFromTransactions.forEach(symbolString -> {
-			symbolRepository.save(new Symbol(null, Date.from(Instant.now()), symbolString));
+		System.out.println(distinctSymbolsFromTransactions);
+
+		List<Symbol> existingSymbols = new ArrayList<Symbol>();
+
+		distinctSymbolsFromTransactions.forEach(s -> {
+			existingSymbols.addAll(symbolRepository.findByAlias(s));
+		});
+
+		existingSymbols.forEach(s -> {
+			distinctSymbolsFromTransactions.remove(s.getSymbol());
+		});
+
+		distinctSymbolsFromTransactions.forEach(symbolString -> {
+			System.out.println("Creating symbol: " + symbolString);
+			symbolRepository.save(new Symbol(null, Date.from(Instant.now()), symbolString, symbolString));
 		});
 	}
 
