@@ -144,7 +144,7 @@ public class PositionUtilsImpl implements PositionUtils {
 		double profitLossPercent;
 		
 		/*
-		 * TODO: review these formulas.
+		 * TODO: review these formulas. Process dividends
 		 */
 
 		if (currentOwnedUnits > 0) {
