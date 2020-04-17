@@ -20,31 +20,134 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cc.stock.tracker.document.Dividend;
 import cc.stock.tracker.document.Transaction;
+import cc.stock.tracker.repository.DividendRepository;
 import cc.stock.tracker.repository.TransactionRepository;
 
 @Service
 public class ExcelUtilsImpl implements ExcelUtils {
-	
+
 	@Autowired
 	private TransactionRepository transactionRepository;
-	
-	
+
+	@Autowired
+	private DividendRepository dividendRepository;
+
 	public List<Transaction> saveTransactionsToMongo(String path) {
 		try {
 			transactionRepository.deleteAll();
 			transactionRepository.saveAll(readTransactionsExcel(path));
-			
+
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+
 		return transactionRepository.findAll();
-		
+
 	}
-	
+
+	public List<Dividend> saveDividendsToMongo(String path) {
+		try {
+			dividendRepository.deleteAll();
+			dividendRepository.saveAll(readDividendsExcel(path));
+
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+
+		return dividendRepository.findAll();
+
+	}
+
+	private ArrayList<Dividend> readDividendsExcel(String path) {
+		ArrayList<String[]> table;
+		ArrayList<Dividend> dividends = new ArrayList<>();
+
+		table = dividendTableAsArrayList(path);
+
+//		Date payDate, String description, String symbol, double grossValue, double taxValue, double netValue
+
+		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+
+		for (int i = 1; i < table.size(); i++) {
+			try {
+
+				if (!table.get(i)[0].trim().equals("--")) {
+
+					dividends.add(new Dividend(formatter.parse(table.get(i)[0].trim()), // payDate
+							table.get(i)[1].trim(), // description
+							table.get(i)[2].trim(), // symbol
+							Double.parseDouble(table.get(i)[3].replace("R$", "").trim().replace(",", ".")), // gross
+							Double.parseDouble(table.get(i)[4].replace("R$", "").trim().replace(",", ".")), // tax
+							Double.parseDouble(table.get(i)[5].replace("R$", "").trim().replace(",", ".")) // net
+					));
+				}
+
+			} catch (NumberFormatException | java.text.ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return dividends;
+	}
+
+	private ArrayList<String[]> dividendTableAsArrayList(String filePath) {
+
+		String cellVal;
+		String line;
+		ArrayList<String[]> rows = new ArrayList<>();
+
+		try {
+			FileInputStream excelFile = new FileInputStream(new File(filePath));
+			Workbook workbook = new HSSFWorkbook(excelFile);
+			Sheet datatypeSheet = workbook.getSheetAt(0);
+			Iterator<Row> rowIterator = datatypeSheet.iterator();
+
+			while (rowIterator.hasNext()) {
+				cellVal = "";
+				line = "";
+
+				Row currentRow = rowIterator.next();
+				Iterator<Cell> cellIterator = currentRow.iterator();
+
+				while (cellIterator.hasNext()) {
+					Cell currentCell = cellIterator.next();
+
+					switch (currentCell.getCellType()) {
+					case BLANK:
+						cellVal = "--#";
+						break;
+					case STRING:
+						cellVal = currentCell.getStringCellValue() + "#";
+						break;
+					case NUMERIC:
+						cellVal = String.valueOf(currentCell.getNumericCellValue()) + "#";
+						break;
+					default:
+						cellVal = " UNKNOWN";
+						break;
+					}
+					line += cellVal + " ";
+
+				}
+
+				if (!line.trim().isEmpty()) {
+					String[] row = line.split("#");
+					rows.add(row);
+				}
+			}
+
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return rows;
+
+	}
 
 	private ArrayList<Transaction> readTransactionsExcel(String path) throws NumberFormatException, ParseException {
 		ArrayList<String[]> table;
