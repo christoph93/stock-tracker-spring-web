@@ -1,0 +1,4 @@
+sudo docker run -e KEYCLOAK_USER=christoph -e KEYCLOAK_PASSWORD=asdf1234 -p 8180:8180 jboss/keycloak -Djboss.http.port=8180
+
+
+./standalone.sh -Djboss.socket.binding.port-offset=100

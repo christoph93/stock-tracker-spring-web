@@ -8,7 +8,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import cc.stock.tracker.document.Position;
 import cc.stock.tracker.service.ExcelUtilsImpl;
 import cc.stock.tracker.service.PositionUtilsImpl;
 import cc.stock.tracker.service.SymbolUtilsImpl;

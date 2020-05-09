@@ -1,13 +1,14 @@
 package cc.stock.tracker.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.stereotype.Repository;
 
 import cc.stock.tracker.document.Alias;
 
 import java.util.List;
-import java.util.Optional;
 
+@RestResource
 @Repository
 public interface AliasRepository extends MongoRepository<Alias, String> {
 
