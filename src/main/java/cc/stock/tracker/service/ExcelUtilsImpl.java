@@ -36,7 +36,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	public List<Transaction> saveTransactionsToMongo(String path) {
 		try {
-			transactionRepository.deleteAll();
+			//transactionRepository.deleteAll();
 			transactionRepository.saveAll(readTransactionsExcel(path));
 
 		} catch (NumberFormatException e) {
@@ -182,6 +182,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 			}
 		}
 
+		System.out.println(transactions);
 		return transactions;
 
 	}
@@ -195,13 +196,13 @@ public class ExcelUtilsImpl implements ExcelUtils {
 		int tableEndColIndex = 999;
 		ArrayList<String[]> rows = new ArrayList<>();
 
-		try {
-			FileInputStream excelFile = new FileInputStream(new File(filePath));
-			Workbook workbook = new HSSFWorkbook(excelFile);
+		try {			
+			FileInputStream excelFile = new FileInputStream(new File(filePath));			
+			Workbook workbook = new HSSFWorkbook(excelFile);			
 			Sheet datatypeSheet = workbook.getSheetAt(0);
 			Iterator<Row> rowIterator = datatypeSheet.iterator();
 
-			while (rowIterator.hasNext()) {
+			while (rowIterator.hasNext()) {				
 				cellVal = "";
 				line = "";
 
@@ -230,7 +231,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 						}
 					}
 
-					if (cellVal.contains("Data NegÃ³cio")) {
+					if (cellVal.contains("Data Negócio")) {
 //						System.out.println("Found beginning of table!");
 						tableStartColIndex = currentCell.getColumnIndex();
 						tableEndColIndex = tableStartColIndex + 9;
@@ -255,8 +256,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 			workbook.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-
+		}		
 		return rows;
 
 	}

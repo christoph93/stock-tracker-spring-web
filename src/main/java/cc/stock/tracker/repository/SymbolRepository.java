@@ -18,9 +18,12 @@ import java.util.Optional;
 @Repository
 public interface SymbolRepository extends MongoRepository<Symbol, String>{
 
-    List<Symbol> findBySymbol(String symbol);
+	//Symbol is unique
+    Symbol findBySymbol(String symbol);
+    
+    //multiple symbols can exist with the same alias (multiple changes mean that 1 or more old symbols can point to the current alias) 
     List<Symbol> findByAlias(String alias);
-    List<Symbol> deleteBySymbol(String symbol);
+    Symbol deleteBySymbol(String symbol);
     Optional<List<Symbol>>findByUpdateDateBefore(Date updateDate);
     Optional<List<Symbol>> findByUpdateDateAfter(Date updateDate);
     

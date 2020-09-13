@@ -14,6 +14,7 @@ public class Symbol {
 
 	transient private Map<String, Double> closingPrices;
 	private Date updateDate;
+	private boolean isActive;
 	private String symbol, alias;
 	private double lastPrice;
 	private Date lastPriceDate;
@@ -78,6 +79,14 @@ public class Symbol {
 
 	public void setLastPriceDate(Date lastPriceDate) {
 		this.lastPriceDate = lastPriceDate;
+	}
+	
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+	
+	public boolean isActive() {
+		return isActive();
 	}
 
 	@Override

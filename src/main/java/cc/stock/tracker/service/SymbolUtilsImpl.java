@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,12 +41,15 @@ public class SymbolUtilsImpl implements SymbolUtils {
 	private AlphaVantageImpl alphaVantageImpl;
 
 	public String getAliasFromSymbol(String symbol) {
-		List<Symbol> symbolList = symbolRepository.findBySymbol(symbol);
-		return (symbolList.isEmpty() ? symbol : symbolRepository.findBySymbol(symbol).get(0).getAlias());
+		Symbol auxSymbol = symbolRepository.findBySymbol(symbol);
+		return (auxSymbol == null ? symbol : symbolRepository.findBySymbol(symbol).getAlias());
 	}
 
+	
+	/*
+	 * Get aliases and update corresponding symbols
+	 */
 	public void updateSymbolAliases() {
-
 		List<Alias> aliases = aliasRepository.findAll();
 
 		if (aliases.isEmpty()) {
@@ -53,17 +58,21 @@ public class SymbolUtilsImpl implements SymbolUtils {
 		}
 
 		aliases.forEach(alias -> {
-			List<Symbol> symbols = symbolRepository.findBySymbol(alias.getSymbol());
-			if (symbols.isEmpty()) {
-				System.out.println("No symbols found for Alias " + alias.getAlias() + ". Creating...");
+			Symbol symbol = symbolRepository.findBySymbol(alias.getSymbol());
+			if (symbol == null) {
+				System.out.println("No symbol found for alias " + alias.getAlias() + ". Creating...");
 				symbolRepository.save(new Symbol(null, Date.from(Instant.now()), alias.getSymbol(), alias.getAlias()));
-
 			} else {
-				symbols.forEach(symbol -> {
+				if(!symbol.getAlias().equals(alias.getAlias())) {
 					symbol.setAlias(alias.getAlias());
-					System.out.println(
-							"Updated symbol alias for symbol " + symbol.getSymbol() + " to " + symbol.getAlias());
-				});
+					if(symbol.getAlias().equals(symbol.getSymbol())) {
+						symbol.setActive(true);
+					} else {
+						symbol.setActive(false);
+					}
+					symbolRepository.save(symbol);
+					System.out.println("Updated alias for symbol " + symbol.getSymbol() + " to " + symbol.getAlias());
+				}
 			}
 
 		});
@@ -84,6 +93,7 @@ public class SymbolUtilsImpl implements SymbolUtils {
 
 		System.out.println("Symbols from transactions: " + distinctSymbolsFromTransactions);
 
+		//get aliases for these symbols
 		distinctSymbolsFromTransactions.forEach(s -> {
 			aliases.addAll(aliasRepository.findBySymbol(s));
 		});
@@ -91,6 +101,8 @@ public class SymbolUtilsImpl implements SymbolUtils {
 		System.out.println("Aliases for above symbols: ");
 		aliases.forEach(a -> System.out.println(a.getSymbol() + " -> " + a.getAlias()));
 
+		
+		//replace the old symbol with the new alias
 		aliases.forEach(a -> {
 			distinctSymbolsFromTransactions.remove(a.getSymbol());
 			distinctSymbolsFromTransactions.add(a.getAlias());
@@ -104,6 +116,7 @@ public class SymbolUtilsImpl implements SymbolUtils {
 			existingSymbols.addAll(symbolRepository.findByAlias(s));
 		});
 
+		//remove symbols that already exist and keep only new ones
 		existingSymbols.forEach(s -> {
 			distinctSymbolsFromTransactions.remove(s.getSymbol());
 		});
@@ -118,31 +131,66 @@ public class SymbolUtilsImpl implements SymbolUtils {
 	 * Update closing prices of the 'count' oldest symbols and return the ordered
 	 * TreeMap of closing prices
 	 */
-	public HashMap<String, TreeMap<Date, Double>> updateOldestClosingPrices(int count) {
-		HashMap<String, TreeMap<Date, Double>> symbolAndClosingPrices = new HashMap<String, TreeMap<Date, Double>>();
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-		Page<Symbol> oldest = symbolRepository.findAll(PageRequest.of(0, count, Sort.Direction.ASC, "updateDate"));
-		oldest.forEach(symbol -> {
-			TreeMap<Date, Double> orderedClosingPrices = new TreeMap<>();
-			Map<String, Double> closingPrices = alphaVantageImpl.getClosginPrices(symbol.getAlias());
-			closingPrices.entrySet().forEach(entry -> {
+//	public HashMap<String, TreeMap<Date, Double>> updateClosingPrices(int count) {
+//		HashMap<String, TreeMap<Date, Double>> symbolAndClosingPrices = new HashMap<String, TreeMap<Date, Double>>();
+//		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+//		Page<Symbol> oldest = symbolRepository.findAll(PageRequest.of(0, count, Sort.Direction.ASC, "updateDate"));
+//		oldest.forEach(symbol -> {
+//			TreeMap<Date, Double> orderedClosingPrices = new TreeMap<>();
+//			Map<String, Double> closingPrices = alphaVantageImpl.getClosginPrices(symbol.getAlias());
+//			closingPrices.entrySet().forEach(entry -> {
+//				try {
+//					orderedClosingPrices.put(formatter.parse(entry.getKey()), entry.getValue());
+//				} catch (ParseException e) {
+//					e.printStackTrace();
+//				}
+//			});
+//
+//			symbol.setClosingPrices(closingPrices);
+//			symbol.setUpdateDate(Date.from(Instant.now()));
+//			symbol.setLastPriceDate(orderedClosingPrices.lastEntry().getKey());
+//			symbol.setLastPrice(orderedClosingPrices.lastEntry().getValue());
+//			symbolRepository.deleteBySymbol(symbol.getSymbol());
+//			symbolRepository.save(symbol);
+//			symbolAndClosingPrices.put(symbol.getAlias(), orderedClosingPrices);
+//			System.out.println("Updated closing prices for symbol " + symbol.getSymbol());
+//		});
+//		return symbolAndClosingPrices;
+//	}
+	
+	//update closing prices for the 'count' oldest symbols
+	public void updateClosingPrices(int count){
+		Page<Symbol> oldest = symbolRepository.findAll(PageRequest.of(0, count, Sort.Direction.ASC, "updateDate"));		
+		oldest.forEach(symbol -> updateClosingPrices(symbol));		
+	}
+	
+	
+	public boolean updateClosingPrices(Symbol symbol) {
+		Map<String, Double> stringClosingPrices = null;		
+		try {
+			stringClosingPrices = alphaVantageImpl.getClosginPrices(symbol.getAlias());
+			TreeMap<Date, Double> dateClosingPrices = new TreeMap<Date, Double>();
+			//convert strings into dates
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+			stringClosingPrices.entrySet().forEach(e -> {				
 				try {
-					orderedClosingPrices.put(formatter.parse(entry.getKey()), entry.getValue());
-				} catch (ParseException e) {
-					e.printStackTrace();
+					dateClosingPrices.put(formatter.parse(e.getKey()), e.getValue());					
+				} catch (ParseException e1) {
+					e1.printStackTrace();
 				}
 			});
-
-			symbol.setClosingPrices(closingPrices);
+			symbol.setClosingPrices(stringClosingPrices);
 			symbol.setUpdateDate(Date.from(Instant.now()));
-			symbol.setLastPriceDate(orderedClosingPrices.lastEntry().getKey());
-			symbol.setLastPrice(orderedClosingPrices.lastEntry().getValue());
-			symbolRepository.deleteBySymbol(symbol.getSymbol());
+			symbol.setLastPriceDate(dateClosingPrices.lastEntry().getKey());
+			symbol.setLastPrice(dateClosingPrices.lastEntry().getValue());
 			symbolRepository.save(symbol);
-			symbolAndClosingPrices.put(symbol.getAlias(), orderedClosingPrices);
-			System.out.println("Updated closing prices for symbol " + symbol.getSymbol());
-		});
-		return symbolAndClosingPrices;
+			System.out.println("Updated closing prices for symbol " + symbol.getSymbol());			
+			return dateClosingPrices != null;
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+		return false;
 	}
+	
 
 }

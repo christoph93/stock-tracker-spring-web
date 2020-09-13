@@ -16,7 +16,7 @@ public class Position {
 	private double avgBuyPrice, avgSellPrice, totalUnitsBought, totalUnitsSold, totalPositionBought, totalPositionSold,
 			result, resultPercent, profitLossFromSales, openPosition, currentOwnedUnits, closedPosition, currentPrice,
 			totalDividends;
-	transient List<Transaction> transactions;
+	private List<Transaction> transactions;
 	private String state;
 	private Date lastUpdateDate;
 
