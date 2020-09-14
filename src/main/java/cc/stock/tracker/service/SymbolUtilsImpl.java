@@ -5,14 +5,11 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -126,37 +123,6 @@ public class SymbolUtilsImpl implements SymbolUtils {
 			symbolRepository.save(new Symbol(null, Date.from(Instant.now()), symbolString, symbolString));
 		});
 	}
-
-	/*
-	 * Update closing prices of the 'count' oldest symbols and return the ordered
-	 * TreeMap of closing prices
-	 */
-//	public HashMap<String, TreeMap<Date, Double>> updateClosingPrices(int count) {
-//		HashMap<String, TreeMap<Date, Double>> symbolAndClosingPrices = new HashMap<String, TreeMap<Date, Double>>();
-//		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-//		Page<Symbol> oldest = symbolRepository.findAll(PageRequest.of(0, count, Sort.Direction.ASC, "updateDate"));
-//		oldest.forEach(symbol -> {
-//			TreeMap<Date, Double> orderedClosingPrices = new TreeMap<>();
-//			Map<String, Double> closingPrices = alphaVantageImpl.getClosginPrices(symbol.getAlias());
-//			closingPrices.entrySet().forEach(entry -> {
-//				try {
-//					orderedClosingPrices.put(formatter.parse(entry.getKey()), entry.getValue());
-//				} catch (ParseException e) {
-//					e.printStackTrace();
-//				}
-//			});
-//
-//			symbol.setClosingPrices(closingPrices);
-//			symbol.setUpdateDate(Date.from(Instant.now()));
-//			symbol.setLastPriceDate(orderedClosingPrices.lastEntry().getKey());
-//			symbol.setLastPrice(orderedClosingPrices.lastEntry().getValue());
-//			symbolRepository.deleteBySymbol(symbol.getSymbol());
-//			symbolRepository.save(symbol);
-//			symbolAndClosingPrices.put(symbol.getAlias(), orderedClosingPrices);
-//			System.out.println("Updated closing prices for symbol " + symbol.getSymbol());
-//		});
-//		return symbolAndClosingPrices;
-//	}
 	
 	//update closing prices for the 'count' oldest symbols
 	public void updateClosingPrices(int count){

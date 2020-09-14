@@ -2,8 +2,6 @@ package cc.stock.tracker.document;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-
 import java.util.Date;
 
 @Document
@@ -20,6 +18,7 @@ public class Transaction {
     private double price;
     private double totalPrice;
     private Date recordCreateDate;
+    private boolean active;
 
 
     public Transaction(Date transactionDate, String operation, String symbol, String description, double quantity, double price, double totalPrice, Date recordCreateDate) {
@@ -103,6 +102,14 @@ public class Transaction {
 
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+    
+    public void setActive(boolean active) {
+    	this.active = active;
+    }
+    
+    public boolean isActive() {
+    	return this.active;
     }
 
     @Override
