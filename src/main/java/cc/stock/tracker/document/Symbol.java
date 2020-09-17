@@ -86,7 +86,7 @@ public class Symbol {
 	}
 	
 	public boolean isActive() {
-		return isActive();
+		return this.isActive;
 	}
 
 	@Override
