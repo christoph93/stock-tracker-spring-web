@@ -36,7 +36,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	public List<Transaction> saveTransactionsToMongo(String path) {
 		try {
-			//transactionRepository.deleteAll();
+			transactionRepository.deleteAll();
 			transactionRepository.saveAll(readTransactionsExcel(path));
 
 		} catch (NumberFormatException e) {

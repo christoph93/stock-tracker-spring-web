@@ -13,11 +13,24 @@ public class Position {
 	private String id;
 
 	private String symbol;
-	private double avgBuyPrice, avgSellPrice, totalUnitsBought, totalUnitsSold, totalPositionBought, totalPositionSold,
-			result, resultPercent, profitLossFromSales, openPosition, currentOwnedUnits, closedPosition, currentPrice,
-			totalDividends;
+	private double avgBuyPrice, 
+				   avgSellPrice, 
+				   totalUnitsBought, 
+				   totalUnitsSold, 
+				   totalPositionBought, 
+				   totalPositionSold,
+				   result, 
+				   resultPercent, 
+				   profitLossFromSales, 
+				   openPosition, 
+				   currentOwnedUnits, 
+				   closedPosition, 
+				   currentPrice,
+				   totalDividends,
+				   dividendCount;
 	private List<Transaction> transactions;
-	private String state;
+	private List<Dividend> dividends;
+	private boolean isOpen, isDeleted;
 	private Date lastUpdateDate;
 
 	public Position(String symbol) {
@@ -72,12 +85,16 @@ public class Position {
 		this.totalDividends = totalDividends;
 	}
 
-	public String getState() {
-		return state;
+	public boolean isOpen() {
+		return this.isOpen;
 	}
 
-	public void setState(String state) {
-		this.state = state;
+	public void setOpen() {
+		this.isOpen = true;
+	}
+	
+	public void setClosed() {
+		this.isOpen = false;
 	}
 
 	public Date getLastUpdateDate() {
@@ -175,6 +192,18 @@ public class Position {
 	public void setProfitLossFromSales(double profitLossFromSales) {
 		this.profitLossFromSales = profitLossFromSales;
 	}
+	
+	public void delete() {
+		this.isDeleted = true;
+	}
+	
+	public void restore() {
+		this.isDeleted = false;
+	}
+	
+	public boolean isDeleted() {
+		return this.isDeleted;
+	}
 
 	@Override
 	public String toString() {
@@ -184,6 +213,6 @@ public class Position {
 				+ ", result=" + result + ", resultPercent=" + resultPercent + ", profitLossFromSales="
 				+ profitLossFromSales + ", openPosition=" + openPosition + ", currentOwnedUnits=" + currentOwnedUnits
 				+ ", closedPosition=" + closedPosition + ", currentPrice=" + currentPrice + ", totalDividends="
-				+ totalDividends + ", state=" + state + ", lastUpdateDate=" + lastUpdateDate + "]";
+				+ totalDividends + ", isOpen=" + isOpen() + ", lastUpdateDate=" + lastUpdateDate + "]";
 	}
 }

@@ -60,7 +60,7 @@ public class PositionUtilsImpl implements PositionUtils {
 	}
 
 	/*
-	 * update all fields based on transactions and current prices
+	 * update all fields based on transactions, dividends and current prices
 	 */
 	public void update(Position positionArg) {
 		this.position = positionArg;
@@ -124,16 +124,17 @@ public class PositionUtilsImpl implements PositionUtils {
 		this.position.setTotalUnitsSold(totalUnitsSold);
 	}
 
-	private void updateCurrentPosition() {
-		List<Symbol> temp = symbolRepository.findByAlias(position.getSymbol());
+	private void updateCurrentPosition() {		
 
-		if (temp.isEmpty()) {
+		Symbol symbol = symbolRepository.findBySymbol(position.getSymbol());
+
+		if (symbol == null) {
 			System.out.println("No symbols found for " + position.getSymbol());
 			return;
 		}
 
-		this.position.setCurrentPrice(temp.get(0).getLastPrice());
-		this.position.setLastUpdateDate(temp.get(0).getLastPriceDate());
+		this.position.setCurrentPrice(symbol.getLastPrice());
+		this.position.setLastUpdateDate(symbol.getLastPriceDate());
 
 		double currentOwnedUnits = this.position.getTotalUnitsBought() - this.position.getTotalUnitsSold();
 
@@ -145,9 +146,9 @@ public class PositionUtilsImpl implements PositionUtils {
 		 */
 
 		if (currentOwnedUnits > 0) {
-			this.position.setState("Open");
+			this.position.setOpen();
 			this.position.setCurrentOwnedUnits(currentOwnedUnits);
-			this.position.setOpenPosition(currentOwnedUnits * temp.get(0).getLastPrice());
+			this.position.setOpenPosition(currentOwnedUnits * this.position.getCurrentPrice());
 			profitLoss =
 					// profit/loss from sales
 					(position.getAvgBuyPrice() * position.getTotalUnitsSold()
@@ -167,7 +168,7 @@ public class PositionUtilsImpl implements PositionUtils {
 			this.position.setResultPercent(profitLossPercent);
 
 		} else {
-			this.position.setState("Closed");
+			this.position.setClosed();
 			this.position.setCurrentOwnedUnits(currentOwnedUnits);
 			profitLoss = this.position.getTotalPositionBought() - this.position.getTotalPositionSold();
 			this.position.setClosedPosition(profitLoss);

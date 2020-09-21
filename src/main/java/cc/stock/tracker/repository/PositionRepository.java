@@ -14,6 +14,6 @@ public interface PositionRepository extends MongoRepository<Position, String> {
 
 	public Page<Position> findAll(Pageable pageable);
 
-	public List<Position> findBySymbol(String symbol);
+	public Position findBySymbol(String symbol);
 
 }
