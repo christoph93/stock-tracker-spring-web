@@ -12,7 +12,7 @@ public class Position {
 	@Id
 	private String id;
 
-	private String symbol;
+	private String symbol, userId;
 	private double avgBuyPrice, 
 				   avgSellPrice, 
 				   totalUnitsBought, 
@@ -32,6 +32,40 @@ public class Position {
 	private List<Dividend> dividends;
 	private boolean isOpen, isDeleted;
 	private Date lastUpdateDate;
+	
+	
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public double getDividendCount() {
+		return dividendCount;
+	}
+
+	public void setDividendCount(double dividendCount) {
+		this.dividendCount = dividendCount;
+	}
+
+	public List<Dividend> getDividends() {
+		return dividends;
+	}
+
+	public void setDividends(List<Dividend> dividends) {
+		this.dividends = dividends;
+	}
+
+	public void setOpen(boolean isOpen) {
+		this.isOpen = isOpen;
+	}
+
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
 
 	public Position(String symbol) {
 		this.symbol = symbol;

@@ -11,7 +11,7 @@ public class Dividend {
     @Id
     private String id;
 
-    private String symbol, description;
+    private String symbol, description, userID;
     private Date payDate;
     private double grossValue, taxValue, netValue;
 
@@ -24,8 +24,18 @@ public class Dividend {
         this.taxValue = taxValue;
         this.netValue = netValue;
     }
+    
+    
 
-    public String getId() {
+    public String getUserID() {
+		return userID;
+	}
+
+	public void setUserID(String userID) {
+		this.userID = userID;
+	}
+
+	public String getId() {
         return id;
     }
 

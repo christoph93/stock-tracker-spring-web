@@ -9,20 +9,16 @@ public class Transaction {
 
 
     @Id
-    private String id;
-    private Date transactionDate;
-    private String operation;
-    private String symbol;
-    private String description;
-    private double quantity;
-    private double price;
-    private double totalPrice;
-    private Date recordCreateDate;
+    private String id;    
+    private Date transactionDate, recordCreateDate;
+    private String operation, userId, symbol, description;    
+    private double quantity, price, totalPrice;    
     private boolean active;
 
 
-    public Transaction(Date transactionDate, String operation, String symbol, String description, double quantity, double price, double totalPrice, Date recordCreateDate) {
-        this.transactionDate = transactionDate;
+    public Transaction(String userId, Date transactionDate, String operation, String symbol, String description, double quantity, double price, double totalPrice, Date recordCreateDate) {
+        this.userId = userId;
+    	this.transactionDate = transactionDate;
         this.operation = operation;
         this.symbol = symbol;        
         this.description = description;
@@ -31,8 +27,19 @@ public class Transaction {
         this.totalPrice = totalPrice;
         this.recordCreateDate = recordCreateDate;
     }
+    
+    
+    
 
-    public void setId(String id) {
+    public String getUserId() {
+		return userId;
+	}
+    
+	public void setUserId(String userId) {
+		this.userId = userId;		
+	}	
+	
+	public void setId(String id) {
         this.id = id;
     }
 
