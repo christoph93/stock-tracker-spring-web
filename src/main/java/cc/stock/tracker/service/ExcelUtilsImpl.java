@@ -2,7 +2,6 @@ package cc.stock.tracker.service;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -35,7 +34,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 	@Autowired
 	private DividendRepository dividendRepository;
 
-	public List<Transaction> saveTransactionsToMongo(String path) throws ParseException {
+	public List<Transaction> saveTransactionsToMongo(String path, String user) throws ParseException {
 
 		List<Transaction> transactions;
 
@@ -45,17 +44,13 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 			// check if it's CEI excel or simple excel
 			if (isCEIExcel(excelFile)) {
-				System.out.println("################# isCEI ");
-				transactions = parseCEIExcel(excelFile);
-			} else {				
-				transactions = parseSimpleExcel(excelFile);
-				System.out.println("#################");
-				System.out.println(transactions);
+				transactions = parseCEIExcel(excelFile, user);
+			} else {
+				transactions = parseSimpleExcel(excelFile, user);
+
 			}
 
-			
-			System.out.println("TRANSACTION REPO");
-			transactionRepository.deleteAll();
+			transactionRepository.deleteById(user);
 			transactionRepository.saveAll(transactions);
 
 		} catch (NumberFormatException e) {
@@ -94,7 +89,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 				if (!table.get(i)[0].trim().equals("--")) {
 
-					dividends.add(new Dividend(formatter.parse(table.get(i)[0].trim()), // payDate
+					dividends.add(new Dividend("tempUserId",formatter.parse(table.get(i)[0].trim()), // payDate
 							table.get(i)[1].trim(), // description
 							table.get(i)[2].trim(), // symbol
 							Double.parseDouble(table.get(i)[3].replace("R$", "").trim().replace(",", ".")), // gross
@@ -166,7 +161,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	}
 
-	private ArrayList<Transaction> readTransactionsList(ArrayList<String[]> table)
+	private ArrayList<Transaction> readTransactionsList(ArrayList<String[]> table, String user)
 			throws NumberFormatException, ParseException {
 		ArrayList<Transaction> transactions = new ArrayList<>();
 
@@ -175,10 +170,10 @@ public class ExcelUtilsImpl implements ExcelUtils {
 		for (int i = 1; i < table.size(); i++) {
 			try {
 
-				transactions.add(new Transaction("5f6cc420d0e0e00073c901f0", formatter.parse(table.get(i)[0].trim()),
-						table.get(i)[1].trim(), table.get(i)[3].trim(), table.get(i)[4].trim(),
-						Double.parseDouble(table.get(i)[5]), Double.parseDouble(table.get(i)[6]),
-						Double.parseDouble(table.get(i)[7]), Date.from(Instant.now())));
+				transactions.add(new Transaction(user, formatter.parse(table.get(i)[0].trim()), table.get(i)[1].trim(),
+						table.get(i)[3].trim(), table.get(i)[4].trim(), Double.parseDouble(table.get(i)[5]),
+						Double.parseDouble(table.get(i)[6]), Double.parseDouble(table.get(i)[7]),
+						Date.from(Instant.now())));
 
 			} catch (NumberFormatException e) {
 				// TODO Auto-generated catch block
@@ -197,7 +192,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 	private ArrayList<String[]> simpleTransactionTableAsArrayList(File excelFile) {
 
 		String cellVal;
-		String line;		
+		String line;
 		int tableStartColIndex = 0;
 		int tableEndColIndex = 7;
 		ArrayList<String[]> rows = new ArrayList<>();
@@ -313,10 +308,10 @@ public class ExcelUtilsImpl implements ExcelUtils {
 					}
 				}
 
-				if (foundTable) {					
-					String[] row = line.replace("--#", "") .split("#");
+				if (foundTable) {
+					String[] row = line.replace("--#", "").split("#");
 					rows.add(row);
-				}				
+				}
 			}
 
 			workbook.close();
@@ -356,8 +351,10 @@ public class ExcelUtilsImpl implements ExcelUtils {
 				}
 
 				if (cellVal.contains("DATA")) {
+					workbook.close();
 					return false;
 				} else {
+					workbook.close();
 					return true;
 				}
 			}
@@ -367,19 +364,18 @@ public class ExcelUtilsImpl implements ExcelUtils {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 		return false;
 	}
 
-	public List<Transaction> parseSimpleExcel(File file) throws NumberFormatException, ParseException {
-		System.out.println("parseSimpleExcel");
+	public List<Transaction> parseSimpleExcel(File file, String user) throws NumberFormatException, ParseException {
 		System.out.println(file.getAbsolutePath());
-		return readTransactionsList(simpleTransactionTableAsArrayList(file));
+		return readTransactionsList(simpleTransactionTableAsArrayList(file), user);
 	}
 
-	public List<Transaction> parseCEIExcel(File file) throws NumberFormatException, ParseException {
-		System.out.println("parseCEIExcel");
+	public List<Transaction> parseCEIExcel(File file, String user) throws NumberFormatException, ParseException {
 		System.out.println(file.getAbsolutePath());
-		return readTransactionsList(ceiTransactionTableAsArrayList(file));
+		return readTransactionsList(ceiTransactionTableAsArrayList(file), user);
 	}
 
 }

@@ -22,16 +22,18 @@ public class FileServiceImpl {
     ExcelUtilsImpl excelUtilsImpl;
 
     public void uploadFile(MultipartFile file, String userSub) {
+    	
+    	String user = userSub.replace("|", "-");
 
         try {
         	//save file
             Path copyLocation = Paths
-                .get(uploadDir + File.separator + userSub.replace("|", "") + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+                .get(uploadDir + File.separator + user + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
             
             System.out.println(copyLocation.toString());
             
             try {
-            	Files.createDirectory(Paths.get(uploadDir + File.separator + userSub.replace("|", "")));
+            	Files.createDirectory(Paths.get(uploadDir + File.separator + user));
             } catch (Exception e) {
             	e.getMessage();
             }
@@ -41,7 +43,7 @@ public class FileServiceImpl {
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
             
             //process file
-            excelUtilsImpl.saveTransactionsToMongo("D:/StockTracker/stock-tracker-spring-web/fileUploads/" + userSub.replace("|", "") + "/" + file.getOriginalFilename());
+            excelUtilsImpl.saveTransactionsToMongo(uploadDir + File.separator + user + File.separator + file.getOriginalFilename(), user);
             
             
         } catch (Exception e) {

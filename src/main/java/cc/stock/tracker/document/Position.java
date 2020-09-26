@@ -33,6 +33,10 @@ public class Position {
 	private boolean isOpen, isDeleted;
 	private Date lastUpdateDate;
 	
+	public Position(String userId, String symbol) {
+		this.userId = userId;
+		this.symbol = symbol;
+	}
 	
 
 	public String getUserId() {
@@ -67,9 +71,7 @@ public class Position {
 		this.isDeleted = isDeleted;
 	}
 
-	public Position(String symbol) {
-		this.symbol = symbol;
-	}
+
 
 	public String getId() {
 		return id;

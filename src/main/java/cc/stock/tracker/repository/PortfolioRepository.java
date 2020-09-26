@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface PortfolioRepository extends MongoRepository<Portfolio, String> {
 
 
-    Optional<List<Portfolio>> findByOwner(String owner);
+    Optional<List<Portfolio>> findByUserId(String userId);
 
     @Query("{ 'owner' : ?0 , 'name' : ?1}")
     Optional<Portfolio> findByOwnerAndName(String owner, String name);

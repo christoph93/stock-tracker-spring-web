@@ -21,9 +21,14 @@ public class TransactionController {
 	@Autowired
 	private TransactionRepository transactionRepository;
 	
-	@GetMapping("/transaction")
-	public List<Transaction> getTransactionBySymbol(@RequestParam(value="symbol", defaultValue="Test") String symbol) {
-		return transactionRepository.findBySymbol(symbol);				
+	@GetMapping("/transactionBySymbol")
+	public List<Transaction> getTransactionBySymbol(@RequestParam(value="symbol") String symbol, @RequestParam(value="userId") String userId) {
+		return transactionRepository.findBySymbolAndUserId(symbol, userId);
+	}
+	
+	@GetMapping("/transactionByUser")
+	public List<Transaction> getTransactionByUser(@RequestParam(value="userId") String userId) {		
+		return transactionRepository.findByUserId(userId);				
 	}
 	
 	

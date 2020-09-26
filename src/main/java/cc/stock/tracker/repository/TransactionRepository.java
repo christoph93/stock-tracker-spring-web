@@ -13,7 +13,7 @@ public interface TransactionRepository extends MongoRepository<Transaction, Stri
 	List<Transaction> findBySymbol(String symbol);
 	List<Transaction> deleteByUserId(String userId);
 	List<Transaction> findByUserId(String userId);
-	
+	List<Transaction> findBySymbolAndUserId(String symbol, String userId);	
 	
 //	@Query(fields= "{'symbol: 1'}")
 //    List<Transaction> findAllSymbols();

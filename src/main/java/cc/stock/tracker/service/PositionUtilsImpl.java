@@ -54,7 +54,7 @@ public class PositionUtilsImpl implements PositionUtils {
 
 		symbols.forEach(s -> {
 			System.out.println("Creating new position for " + s);
-			positionRepository.save(new Position(s));
+			positionRepository.save(new Position("tempUserId", s));
 		});
 
 	}

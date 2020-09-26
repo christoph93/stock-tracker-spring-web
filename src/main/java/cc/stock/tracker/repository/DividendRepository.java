@@ -15,7 +15,9 @@ import java.util.Optional;
 public interface DividendRepository extends MongoRepository<Dividend, String>{
 
 
-    Optional<List<Dividend>> findBySymbol(String symbol);
+    Optional<List<Dividend>> findBySymbolAndUserId(String symbol, String userId);
+    
+    List<Dividend> findByUserId(String userId);
 
     @Query("{ 'symbol' : ?0 , 'payDate' : { $lt : ?1} }")
     Optional<List<Dividend>> findBySymbolAndPayDateBefore(String symbol, Date payDate);

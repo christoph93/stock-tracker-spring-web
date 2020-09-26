@@ -15,7 +15,7 @@ public class Portfolio {
     @Id
     private String id;
 
-    private String owner;
+    private String userId;
     private String name;
     private HashSet<String> symbols; //list of symbols
     transient  private ArrayList<Position> positions;
@@ -23,9 +23,9 @@ public class Portfolio {
     public double totalEquity, totalProfit, percentProfit;
 
 
-    public Portfolio(String owner, String name) {
+    public Portfolio(String userId, String name) {
         this.name = name;
-        this.owner = owner;
+        this.userId = userId;
         this.positions = new ArrayList<>();
         this.symbols = new HashSet<>();
     }
@@ -79,11 +79,11 @@ public class Portfolio {
     }
 
     public String getOwner() {
-        return owner;
+        return userId;
     }
 
     public void setOwner(String owner) {
-        this.owner = owner;
+        this.userId = owner;
     }
 
     @Override
@@ -92,7 +92,7 @@ public class Portfolio {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", symbols=" + symbols.toString() +
-                ", owner='" + owner + '\'' +
+                ", owner='" + userId + '\'' +
                 '}';
     }
 }

@@ -17,9 +17,14 @@ public class PositionController {
 	@Autowired
 	private PositionRepository positionRepository;
 	
-	@GetMapping("/position")
-	public Position getSymbol(@RequestParam(value="symbol", defaultValue="Test") String symbol) {
-		return positionRepository.findBySymbol(symbol);				
+	@GetMapping("/positionBySymbol")
+	public Position getBySymbol(@RequestParam(value="symbol") String symbol, @RequestParam(value="userId") String userId) {
+		return positionRepository.findBySymbolAndUserId(symbol, userId);				
+	}
+	
+	@GetMapping("/positionByUser")
+	public List<Position> getByUserId(@RequestParam(value="userId") String userId) {
+		return positionRepository.findByUserId(userId);				
 	}
 	
 	

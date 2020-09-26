@@ -13,7 +13,10 @@ import cc.stock.tracker.document.Position;
 public interface PositionRepository extends MongoRepository<Position, String> {
 
 	public Page<Position> findAll(Pageable pageable);
+	
+	public List<Position> findByUserId(String userId);
 
 	public Position findBySymbol(String symbol);
+	public Position findBySymbolAndUserId(String symbol, String UserId);
 
 }

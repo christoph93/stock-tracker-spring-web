@@ -11,12 +11,12 @@ public class Dividend {
     @Id
     private String id;
 
-    private String symbol, description, userID;
+    private String symbol, description, userId;
     private Date payDate;
     private double grossValue, taxValue, netValue;
 
 
-    public Dividend(Date payDate, String description, String symbol, double grossValue, double taxValue, double netValue) {
+    public Dividend(String userId, Date payDate, String description, String symbol, double grossValue, double taxValue, double netValue) {
         this.symbol = symbol;        
         this.description = description;
         this.payDate = payDate;
@@ -28,11 +28,11 @@ public class Dividend {
     
 
     public String getUserID() {
-		return userID;
+		return userId;
 	}
 
 	public void setUserID(String userID) {
-		this.userID = userID;
+		this.userId = userID;
 	}
 
 	public String getId() {

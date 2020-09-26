@@ -8,6 +8,6 @@ import cc.stock.tracker.document.Transaction;
 
 public interface ExcelUtils {
 	
-	public List<Transaction> saveTransactionsToMongo(String path) throws ParseException;
+	public List<Transaction> saveTransactionsToMongo(String path, String user) throws ParseException;
 
 }
