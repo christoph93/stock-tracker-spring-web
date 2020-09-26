@@ -2,6 +2,7 @@ package cc.stock.tracker.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -34,14 +35,30 @@ public class ExcelUtilsImpl implements ExcelUtils {
 	@Autowired
 	private DividendRepository dividendRepository;
 
-	public List<Transaction> saveTransactionsToMongo(String path) {
+	public List<Transaction> saveTransactionsToMongo(String path) throws ParseException {
+
+		List<Transaction> transactions;
+
 		try {
+
+			File excelFile = new File(path);
+
+			// check if it's CEI excel or simple excel
+			if (isCEIExcel(excelFile)) {
+				System.out.println("################# isCEI ");
+				transactions = parseCEIExcel(excelFile);
+			} else {				
+				transactions = parseSimpleExcel(excelFile);
+				System.out.println("#################");
+				System.out.println(transactions);
+			}
+
+			
+			System.out.println("TRANSACTION REPO");
 			transactionRepository.deleteAll();
-			transactionRepository.saveAll(readTransactionsExcel(path));
+			transactionRepository.saveAll(transactions);
 
 		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 
@@ -149,29 +166,19 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	}
 
-	private ArrayList<Transaction> readTransactionsExcel(String path) throws NumberFormatException, ParseException {
-		ArrayList<String[]> table;
+	private ArrayList<Transaction> readTransactionsList(ArrayList<String[]> table)
+			throws NumberFormatException, ParseException {
 		ArrayList<Transaction> transactions = new ArrayList<>();
 
-//		System.out.println("Calling readFile");
-
-		table = transactionTableAsArrayList(path);
-		/*
-		 * for(String[] row : table){ line = ""; for(String s : row){ line += s + " "; }
-		 * System.out.println(line); }
-		 */
-
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH);
-
-		// table.get(i)[0].trim()
 
 		for (int i = 1; i < table.size(); i++) {
 			try {
 
-				transactions.add(new Transaction("5f6cc420d0e0e00073c901f0" ,formatter.parse(table.get(i)[0].trim()), table.get(i)[2].trim(),
-						table.get(i)[5].trim(), table.get(i)[6].trim(), Double.parseDouble(table.get(i)[7]),
-						Double.parseDouble(table.get(i)[8]), Double.parseDouble(table.get(i)[9]),
-						Date.from(Instant.now())));
+				transactions.add(new Transaction("5f6cc420d0e0e00073c901f0", formatter.parse(table.get(i)[0].trim()),
+						table.get(i)[1].trim(), table.get(i)[3].trim(), table.get(i)[4].trim(),
+						Double.parseDouble(table.get(i)[5]), Double.parseDouble(table.get(i)[6]),
+						Double.parseDouble(table.get(i)[7]), Date.from(Instant.now())));
 
 			} catch (NumberFormatException e) {
 				// TODO Auto-generated catch block
@@ -187,7 +194,67 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	}
 
-	private ArrayList<String[]> transactionTableAsArrayList(String filePath) {
+	private ArrayList<String[]> simpleTransactionTableAsArrayList(File excelFile) {
+
+		String cellVal;
+		String line;		
+		int tableStartColIndex = 0;
+		int tableEndColIndex = 7;
+		ArrayList<String[]> rows = new ArrayList<>();
+
+		try {
+			FileInputStream excelInput = new FileInputStream(excelFile);
+			Workbook workbook = new HSSFWorkbook(excelInput);
+			Sheet datatypeSheet = workbook.getSheetAt(0);
+			Iterator<Row> rowIterator = datatypeSheet.iterator();
+
+			while (rowIterator.hasNext()) {
+				cellVal = "";
+				line = "";
+
+				Row currentRow = rowIterator.next();
+				Iterator<Cell> cellIterator = currentRow.iterator();
+
+				while (cellIterator.hasNext()) {
+					Cell currentCell = cellIterator.next();
+
+					if (currentCell.getColumnIndex() >= tableStartColIndex
+							&& currentCell.getColumnIndex() <= tableEndColIndex) {
+
+						switch (currentCell.getCellType()) {
+						case BLANK:
+							cellVal = "--#";
+							break;
+						case STRING:
+							cellVal = currentCell.getStringCellValue() + "#";
+							break;
+						case NUMERIC:
+							cellVal = String.valueOf(currentCell.getNumericCellValue()) + "#";
+							break;
+						default:
+							cellVal = " UNKNOWN";
+							break;
+						}
+					}
+
+					line += cellVal + " ";
+
+				}
+
+				String[] row = line.split("#");
+				rows.add(row);
+
+			}
+
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return rows;
+
+	}
+
+	private ArrayList<String[]> ceiTransactionTableAsArrayList(File excelFile) {
 
 		String cellVal;
 		String line;
@@ -196,13 +263,13 @@ public class ExcelUtilsImpl implements ExcelUtils {
 		int tableEndColIndex = 999;
 		ArrayList<String[]> rows = new ArrayList<>();
 
-		try {			
-			FileInputStream excelFile = new FileInputStream(new File(filePath));			
-			Workbook workbook = new HSSFWorkbook(excelFile);			
+		try {
+			FileInputStream excelInput = new FileInputStream(excelFile);
+			Workbook workbook = new HSSFWorkbook(excelInput);
 			Sheet datatypeSheet = workbook.getSheetAt(0);
 			Iterator<Row> rowIterator = datatypeSheet.iterator();
 
-			while (rowIterator.hasNext()) {				
+			while (rowIterator.hasNext()) {
 				cellVal = "";
 				line = "";
 
@@ -246,19 +313,73 @@ public class ExcelUtilsImpl implements ExcelUtils {
 					}
 				}
 
-				if (foundTable) {
-					String[] row = line.split("#");
+				if (foundTable) {					
+					String[] row = line.replace("--#", "") .split("#");
 					rows.add(row);
-				}
-				;
+				}				
 			}
 
 			workbook.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}		
+		}
 		return rows;
 
+	}
+
+	private boolean isCEIExcel(File file) {
+
+		FileInputStream excelFile;
+		try {
+			excelFile = new FileInputStream(file);
+			Workbook workbook = new HSSFWorkbook(excelFile);
+			Sheet datatypeSheet = workbook.getSheetAt(0);
+			Iterator<Row> rowIterator = datatypeSheet.iterator();
+
+			String cellVal = "";
+
+			while (rowIterator.hasNext()) {
+				Row currentRow = rowIterator.next();
+				Iterator<Cell> cellIterator = currentRow.iterator();
+
+				while (cellIterator.hasNext()) {
+					Cell currentCell = cellIterator.next();
+
+					switch (currentCell.getCellType()) {
+					case STRING:
+						cellVal = currentCell.getStringCellValue().toUpperCase();
+						break;
+					default:
+						cellVal = " UNKNOWN";
+						break;
+					}
+				}
+
+				if (cellVal.contains("DATA")) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+			
+			workbook.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public List<Transaction> parseSimpleExcel(File file) throws NumberFormatException, ParseException {
+		System.out.println("parseSimpleExcel");
+		System.out.println(file.getAbsolutePath());
+		return readTransactionsList(simpleTransactionTableAsArrayList(file));
+	}
+
+	public List<Transaction> parseCEIExcel(File file) throws NumberFormatException, ParseException {
+		System.out.println("parseCEIExcel");
+		System.out.println(file.getAbsolutePath());
+		return readTransactionsList(ceiTransactionTableAsArrayList(file));
 	}
 
 }

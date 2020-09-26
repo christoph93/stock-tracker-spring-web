@@ -2,6 +2,7 @@ package cc.stock.tracker;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,8 +32,8 @@ public class StockTrackerApplication {
 
 	@PostConstruct
 	public void init() {
-		System.out.println("Saving transactions to mongo");
-		saveTransactionsToMongo();
+//		System.out.println("Saving transactions to mongo");
+//		saveTransactionsToMongo();
 
 		System.out.println("Saving dividends to mongo");
 		saveDividendsToMongo();
@@ -63,13 +64,18 @@ public class StockTrackerApplication {
 		positionUtilsImpl.updatePositions();
 	}
 
-	public void saveTransactionsToMongo() {
-		try {
-			excelUtilsImpl.saveTransactionsToMongo("transactions.xls");
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
-	}
+//	public void saveTransactionsToMongo() {
+//		try {
+//			try {
+//				excelUtilsImpl.saveTransactionsToMongo("ceiexcel.xls");
+//				excelUtilsImpl.saveTransactionsToMongo("simpleexcel.xls");
+//			} catch (ParseException e) {
+//				e.printStackTrace();
+//			}
+//		} catch (NumberFormatException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
 	public void saveDividendsToMongo() {
 		excelUtilsImpl.saveDividendsToMongo("./dividends.xls");
