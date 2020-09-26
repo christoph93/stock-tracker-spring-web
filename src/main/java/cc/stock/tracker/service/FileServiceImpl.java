@@ -21,16 +21,27 @@ public class FileServiceImpl {
     @Autowired
     ExcelUtilsImpl excelUtilsImpl;
 
-    public void uploadFile(MultipartFile file) {
+    public void uploadFile(MultipartFile file, String userSub) {
 
         try {
         	//save file
             Path copyLocation = Paths
-                .get(uploadDir + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+                .get(uploadDir + File.separator + userSub.replace("|", "") + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+            
+            System.out.println(copyLocation.toString());
+            
+            try {
+            	Files.createDirectory(Paths.get(uploadDir + File.separator + userSub.replace("|", "")));
+            } catch (Exception e) {
+            	e.getMessage();
+            }
+            
+            
+            
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
             
             //process file
-            excelUtilsImpl.saveTransactionsToMongo("D:/StockTracker/stock-tracker-spring-web/fileUploads/" + file.getOriginalFilename());
+            excelUtilsImpl.saveTransactionsToMongo("D:/StockTracker/stock-tracker-spring-web/fileUploads/" + userSub.replace("|", "") + "/" + file.getOriginalFilename());
             
             
         } catch (Exception e) {

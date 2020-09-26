@@ -20,9 +20,9 @@ public class FileController {
 	FileServiceImpl fileService;
 
 	@PostMapping("/uploadTransactions")
-	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
 
-		fileService.uploadFile(file);
+		fileService.uploadFile(file, userSub);
 		
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");

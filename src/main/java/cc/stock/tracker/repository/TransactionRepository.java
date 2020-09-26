@@ -11,6 +11,8 @@ import java.util.List;
 public interface TransactionRepository extends MongoRepository<Transaction, String> {
 
 	List<Transaction> findBySymbol(String symbol);
+	List<Transaction> deleteByUserId(String userId);
+	List<Transaction> findByUserId(String userId);
 	
 	
 //	@Query(fields= "{'symbol: 1'}")
