@@ -61,7 +61,7 @@ public class StockTrackerApplication {
 	@Scheduled(fixedDelay = 120000, initialDelay = 20000)
 	public void updatePositions() {
 		System.out.println("Schedule: updating positions");
-		positionUtilsImpl.updatePositions();
+		positionUtilsImpl.updateAllPositions();
 	}
 
 //	public void saveTransactionsToMongo() {

@@ -28,8 +28,8 @@ public class SymbolController {
 	
 	
 	@GetMapping("/allSymbols")
-	public List<Symbol> getAllSymbols(){
-		return symbolRepository.findAll();
+	public List<Symbol> getAllActiveSymbols(){
+		return symbolRepository.findByIsActive(true);
 	}
 	
 	

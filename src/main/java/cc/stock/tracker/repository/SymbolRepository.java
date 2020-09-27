@@ -26,7 +26,7 @@ public interface SymbolRepository extends MongoRepository<Symbol, String>{
     Symbol deleteBySymbol(String symbol);
     Optional<List<Symbol>>findByUpdateDateBefore(Date updateDate);
     Optional<List<Symbol>> findByUpdateDateAfter(Date updateDate);
+    List<Symbol> findByIsActive(boolean isActive);
     
     Page<Symbol> findAll(Pageable pageable);
-
 }

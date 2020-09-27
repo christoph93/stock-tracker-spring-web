@@ -58,10 +58,10 @@ public class SymbolUtilsImpl implements SymbolUtils {
 			Symbol symbol = symbolRepository.findBySymbol(alias.getSymbol());
 			if (symbol == null) {
 				System.out.println("No symbol found for alias " + alias.getAlias() + ". Creating...");
-				symbolRepository.save(new Symbol(null, Date.from(Instant.now()), alias.getSymbol(), alias.getAlias()));
+				symbolRepository.save(new Symbol(false,null, Date.from(Instant.now()), alias.getSymbol(), alias.getAlias()));
 			} else {
 				if(!symbol.getAlias().equals(alias.getAlias())) {
-					symbol.setAlias(alias.getAlias());
+					symbol.setAlias(alias.getAlias());					
 					if(symbol.getAlias().equals(symbol.getSymbol())) {
 						symbol.setActive(true);
 					} else {
@@ -120,7 +120,7 @@ public class SymbolUtilsImpl implements SymbolUtils {
 
 		distinctSymbolsFromTransactions.forEach(symbolString -> {
 			System.out.println("Creating symbol: " + symbolString);
-			symbolRepository.save(new Symbol(null, Date.from(Instant.now()), symbolString, symbolString));
+			symbolRepository.save(new Symbol(true, null, Date.from(Instant.now()), symbolString, symbolString));
 		});
 	}
 	

@@ -19,7 +19,8 @@ public class Symbol {
 	private double lastPrice;
 	private Date lastPriceDate;
 
-	public Symbol(Map<String, Double> closingPrices, Date updateDate, String symbol, String alias) {
+	public Symbol(boolean isActive, Map<String, Double> closingPrices, Date updateDate, String symbol, String alias) {
+		this.isActive = isActive;
 		this.updateDate = updateDate;
 		this.symbol = symbol;
 		this.alias = alias;

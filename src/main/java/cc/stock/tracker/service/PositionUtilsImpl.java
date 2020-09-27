@@ -36,16 +36,25 @@ public class PositionUtilsImpl implements PositionUtils {
 	private List<Transaction> transactionList;
 	private Position position;
 
-	/*
-	 * Update oldest {count} positions. Create missing positions from symbols.
-	 */
-	public void updatePositions() {
+	
+	public void updateAllPositions() {
+		//TODO: get user list from auth0
+		ArrayList<String> users = new ArrayList<String>();
+		users.add("auth0-5f6cc420d0e0e00073c901f0");
+		
+		
+		users.forEach(u -> updatePositions(u));
+		
+		
+	}
+	
+	public void updatePositions(String userId) {
 		HashSet<String> symbols = new HashSet<>();
 		symbolRepository.findAll().forEach(s -> {
 			symbols.add(s.getAlias());
 		});
 
-		List<Position> positions = positionRepository.findAll();
+		List<Position> positions = positionRepository.findByUserId(userId);
 
 		positions.forEach(p -> {
 			symbols.remove(p.getSymbol());
@@ -54,7 +63,7 @@ public class PositionUtilsImpl implements PositionUtils {
 
 		symbols.forEach(s -> {
 			System.out.println("Creating new position for " + s);
-			positionRepository.save(new Position("tempUserId", s));
+			positionRepository.save(new Position(userId, s));
 		});
 
 	}
@@ -81,7 +90,7 @@ public class PositionUtilsImpl implements PositionUtils {
 		}
 
 		symbolList.forEach(s -> {
-			transactionList.addAll(transactionRepository.findBySymbol(s));
+			transactionList.addAll(transactionRepository.findBySymbolAndUserId(s, this.position.getUserId()));
 		});
 
 		updateAverages();
