@@ -50,7 +50,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 			}
 
-			transactionRepository.deleteById(userId);
+			transactionRepository.deleteByUserId(userId);
 			transactionRepository.saveAll(transactions);
 
 		} catch (NumberFormatException e) {

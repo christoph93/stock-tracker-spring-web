@@ -12,7 +12,7 @@ public class Transaction {
 	private Date transactionDate, recordCreateDate;
 	private String operation, userId, symbol, description;
 	private double quantity, price, totalPrice;
-	private boolean active;
+	private boolean deleted;
 
 	public Transaction(String userId, Date transactionDate, String operation, String symbol, String description,
 			double quantity, double price, double totalPrice, Date recordCreateDate) {
@@ -107,12 +107,20 @@ public class Transaction {
 		this.totalPrice = totalPrice;
 	}
 
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
+	public void delete() {
+		this.deleted = true;
+	}
+	
+	public void restore() {
+		this.deleted = false;
 	}
 
-	public boolean isActive() {
-		return this.active;
+	public boolean isDeleted() {
+		return this.deleted;
 	}
 
 	@Override

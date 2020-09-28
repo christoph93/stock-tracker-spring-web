@@ -10,10 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cc.stock.tracker.document.Alias;
+import cc.stock.tracker.document.Dividend;
 import cc.stock.tracker.document.Position;
 import cc.stock.tracker.document.Symbol;
 import cc.stock.tracker.document.Transaction;
 import cc.stock.tracker.repository.AliasRepository;
+import cc.stock.tracker.repository.DividendRepository;
 import cc.stock.tracker.repository.PositionRepository;
 import cc.stock.tracker.repository.SymbolRepository;
 import cc.stock.tracker.repository.TransactionRepository;
@@ -32,9 +34,13 @@ public class PositionUtilsImpl implements PositionUtils {
 
 	@Autowired
 	private PositionRepository positionRepository;
+	
+	@Autowired
+	private DividendRepository dividendRepository;
 
 	private List<Transaction> transactionList;
 	private Position position;
+	private List<Dividend> dividendList;
 
 	
 	public void updateAllPositions() {
@@ -49,6 +55,7 @@ public class PositionUtilsImpl implements PositionUtils {
 	}
 	
 	public void updatePositions(String userId) {
+		System.out.println("updatind positions for " + userId);
 		HashSet<String> symbols = new HashSet<>();
 		symbolRepository.findAll().forEach(s -> {
 			symbols.add(s.getAlias());
@@ -74,6 +81,7 @@ public class PositionUtilsImpl implements PositionUtils {
 	public void update(Position positionArg) {
 		this.position = positionArg;
 		this.transactionList = new ArrayList<Transaction>();
+		this.dividendList = new ArrayList<Dividend>();
 		String positionAlias = this.position.getSymbol();
 		List<Alias> aliasList = aliasRepository.findByAlias(positionAlias);
 		List<String> symbolList = new ArrayList<String>();
@@ -88,19 +96,33 @@ public class PositionUtilsImpl implements PositionUtils {
 		} else {
 			aliasList.forEach(a -> symbolList.add(a.getSymbol()));
 		}
+		
+		
 
 		symbolList.forEach(s -> {
-			transactionList.addAll(transactionRepository.findBySymbolAndUserId(s, this.position.getUserId()));
+			transactionList.addAll(transactionRepository.findBySymbolAndUserId(s, this.position.getUserId()));			
+			dividendList.addAll(dividendRepository.findBySymbolAndUserId(s, this.position.getUserId()));
 		});
+		
+		this.position.setTransactions(transactionList);
+		this.position.setDividends(dividendList);
 
 		updateAverages();
 
 		updateCurrentPosition();
+		
+		updateDividends();
 
 		positionRepository.save(this.position);
 
 		System.out.println("Updated position: " + positionRepository.findById(this.position.getId()));
 
+	}
+	
+	private void updateDividends(){
+		double total = dividendList.stream().reduce(0.0, (subtotal, e) -> subtotal + e.getNetValue(), Double::sum );
+		this.position.setTotalDividends(total);
+		this.position.setDividendCount(dividendList.size());		
 	}
 
 	private void updateAverages() {

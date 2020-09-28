@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cc.stock.tracker.document.Position;
 import cc.stock.tracker.repository.PositionRepository;
+import cc.stock.tracker.service.PositionUtilsImpl;
+
 import java.util.List;
 
 @CrossOrigin
@@ -17,13 +19,17 @@ public class PositionController {
 	@Autowired
 	private PositionRepository positionRepository;
 	
+	@Autowired
+	private PositionUtilsImpl positionUtils;
+	
 	@GetMapping("/positionBySymbol")
-	public Position getBySymbol(@RequestParam(value="symbol") String symbol, @RequestParam(value="userId") String userId) {
+	public Position getBySymbol(@RequestParam(value="symbol") String symbol, @RequestParam(value="userId") String userId) {		
 		return positionRepository.findBySymbolAndUserId(symbol, userId);				
 	}
 	
-	@GetMapping("/positionByUser")
+	@GetMapping("/positionsByUser")
 	public List<Position> getByUserId(@RequestParam(value="userId") String userId) {
+		positionUtils.updatePositions(userId);		
 		return positionRepository.findByUserId(userId);				
 	}
 	

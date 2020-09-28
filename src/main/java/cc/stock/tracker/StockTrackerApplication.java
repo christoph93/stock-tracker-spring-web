@@ -58,11 +58,11 @@ public class StockTrackerApplication {
 		symbolUtilsImpl.updateClosingPrices(5);
 	}
 
-	@Scheduled(fixedDelay = 120000, initialDelay = 20000)
-	public void updatePositions() {
-		System.out.println("Schedule: updating positions");
-		positionUtilsImpl.updateAllPositions();
-	}
+//	@Scheduled(fixedDelay = 120000, initialDelay = 20000)
+//	public void updatePositions() {
+//		System.out.println("Schedule: updating positions");
+//		positionUtilsImpl.updateAllPositions();
+//	}
 
 //	public void saveTransactionsToMongo() {
 //		try {

@@ -28,8 +28,8 @@ public class Position {
 				   currentPrice,
 				   totalDividends,
 				   dividendCount;
-	private List<Transaction> transactions;
-	private List<Dividend> dividends;
+	transient List<Transaction> transactions;
+	transient List<Dividend> dividends;
 	private boolean isOpen, isDeleted;
 	private Date lastUpdateDate;
 	
@@ -37,6 +37,7 @@ public class Position {
 		this.userId = userId;
 		this.symbol = symbol;
 	}
+	
 	
 
 	public String getUserId() {

@@ -15,10 +15,8 @@ import java.util.Optional;
 public interface DividendRepository extends MongoRepository<Dividend, String>{
 
 
-    List<Dividend> findBySymbolAndUserId(String symbol, String userId);
-    
     List<Dividend> findByUserId(String userId);
-    List<Dividend> findByUserIdAndSymbol(String userId, String symbol);
+    List<Dividend> findBySymbolAndUserId(String symbol, String userId);
     List<Dividend> deleteByUserId(String userId);
 
     @Query("{ 'symbol' : ?0 , 'payDate' : { $lt : ?1} }")

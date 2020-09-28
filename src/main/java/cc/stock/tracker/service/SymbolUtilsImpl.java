@@ -153,7 +153,7 @@ public class SymbolUtilsImpl implements SymbolUtils {
 			System.out.println("Updated closing prices for symbol " + symbol.getSymbol());			
 			return dateClosingPrices != null;
 		} catch (Exception e){
-			e.printStackTrace();
+			e.getMessage();
 		}
 		return false;
 	}

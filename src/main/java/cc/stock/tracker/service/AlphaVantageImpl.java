@@ -27,7 +27,7 @@ public class AlphaVantageImpl implements AlphaVantage {
 	@Value("${cc.stocktrackerapi.alphavantage.outputSize}")
 	private String outputSize;
 
-	public TreeMap<String, Double> getClosginPrices(String symbol) {
+	public TreeMap<String, Double> getClosginPrices(String symbol) throws Exception  {
 		TreeMap<String, Double> closingPrices = new TreeMap<String, Double>();
 
 		String urlString = String.format(urlPattern, timeSeries, symbol + ".SAO", outputSize, apiKey);
@@ -38,9 +38,8 @@ public class AlphaVantageImpl implements AlphaVantage {
 		String result = restTemplate.getForObject(urlString, String.class);
 		JsonObject jsonObject = new Gson().fromJson(result, JsonObject.class);
 		
-		if(!jsonObject.has("Meta Data")){
-            System.out.println("Response did not contain Meta Data. Returning");
-            return new TreeMap<String, Double>();
+		if(!jsonObject.has("Meta Data")){			
+			throw new Exception("Response did not contain Meta Data. Returning");
         }
 
 //		System.out.println(jsonObject.toString());
