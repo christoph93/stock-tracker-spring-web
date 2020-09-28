@@ -34,7 +34,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 	@Autowired
 	private DividendRepository dividendRepository;
 
-	public List<Transaction> saveTransactionsToMongo(String path, String user) throws ParseException {
+	public List<Transaction> saveTransactionsToMongo(String path, String userId) throws ParseException {
 
 		List<Transaction> transactions;
 
@@ -44,41 +44,44 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 			// check if it's CEI excel or simple excel
 			if (isCEIExcel(excelFile)) {
-				transactions = parseCEIExcel(excelFile, user);
+				transactions = parseCEIExcel(excelFile, userId);
 			} else {
-				transactions = parseSimpleExcel(excelFile, user);
+				transactions = parseSimpleExcel(excelFile, userId);
 
 			}
 
-			transactionRepository.deleteById(user);
+			transactionRepository.deleteById(userId);
 			transactionRepository.saveAll(transactions);
 
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		}
 
-		return transactionRepository.findAll();
+		return transactionRepository.findByUserId(userId);
 
 	}
 
-	public List<Dividend> saveDividendsToMongo(String path) {
+	public List<Dividend> saveDividendsToMongo(String path, String userId) {
 		try {
-			dividendRepository.deleteAll();
-			dividendRepository.saveAll(readDividendsExcel(path));
+			
+			File excelFile = new File(path);
+			
+			dividendRepository.deleteByUserId(userId);
+			dividendRepository.saveAll(readDividendsExcel(excelFile, userId));
 
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		}
 
-		return dividendRepository.findAll();
+		return dividendRepository.findByUserId(userId);
 
 	}
 
-	private ArrayList<Dividend> readDividendsExcel(String path) {
+	private ArrayList<Dividend> readDividendsExcel(File  file, String userId) {
 		ArrayList<String[]> table;
 		ArrayList<Dividend> dividends = new ArrayList<>();
 
-		table = dividendTableAsArrayList(path);
+		table = dividendTableAsArrayList(file);
 
 //		Date payDate, String description, String symbol, double grossValue, double taxValue, double netValue
 
@@ -89,7 +92,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 				if (!table.get(i)[0].trim().equals("--")) {
 
-					dividends.add(new Dividend("tempUserId",formatter.parse(table.get(i)[0].trim()), // payDate
+					dividends.add(new Dividend(userId,formatter.parse(table.get(i)[0].trim()), // payDate
 							table.get(i)[1].trim(), // description
 							table.get(i)[2].trim(), // symbol
 							Double.parseDouble(table.get(i)[3].replace("R$", "").trim().replace(",", ".")), // gross
@@ -106,14 +109,14 @@ public class ExcelUtilsImpl implements ExcelUtils {
 		return dividends;
 	}
 
-	private ArrayList<String[]> dividendTableAsArrayList(String filePath) {
+	private ArrayList<String[]> dividendTableAsArrayList(File file) {
 
 		String cellVal;
 		String line;
 		ArrayList<String[]> rows = new ArrayList<>();
 
 		try {
-			FileInputStream excelFile = new FileInputStream(new File(filePath));
+			FileInputStream excelFile = new FileInputStream(file);
 			Workbook workbook = new HSSFWorkbook(excelFile);
 			Sheet datatypeSheet = workbook.getSheetAt(0);
 			Iterator<Row> rowIterator = datatypeSheet.iterator();

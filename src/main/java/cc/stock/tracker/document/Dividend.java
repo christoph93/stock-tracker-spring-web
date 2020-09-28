@@ -17,7 +17,8 @@ public class Dividend {
 
 
     public Dividend(String userId, Date payDate, String description, String symbol, double grossValue, double taxValue, double netValue) {
-        this.symbol = symbol;        
+        this.userId = userId;
+    	this.symbol = symbol;        
         this.description = description;
         this.payDate = payDate;
         this.grossValue = grossValue;

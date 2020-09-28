@@ -20,9 +20,20 @@ public class FileController {
 	FileServiceImpl fileService;
 
 	@PostMapping("/uploadTransactions")
-	public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
+	public ResponseEntity<String> uploadTransactionsFile(@RequestParam("file") MultipartFile file, @RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
 
-		fileService.uploadFile(file, userSub);
+		fileService.uploadTransactionsFile(file, userSub);
+		
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully uploaded " + file.getOriginalFilename() + "!");
+
+        return ResponseEntity.status(HttpStatus.OK).body("Test");
+	}
+	
+	@PostMapping("/uploadDividends")
+	public ResponseEntity<String> uploadDividendsFile(@RequestParam("file") MultipartFile file, @RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
+
+		fileService.uploadDividendsFile(file, userSub);
 		
         redirectAttributes.addFlashAttribute("message",
                 "You successfully uploaded " + file.getOriginalFilename() + "!");

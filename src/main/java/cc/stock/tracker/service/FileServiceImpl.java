@@ -21,19 +21,19 @@ public class FileServiceImpl {
     @Autowired
     ExcelUtilsImpl excelUtilsImpl;
 
-    public void uploadFile(MultipartFile file, String userSub) {
+    public void uploadTransactionsFile(MultipartFile file, String userSub) {
     	
     	String user = userSub.replace("|", "-");
 
         try {
         	//save file
             Path copyLocation = Paths
-                .get(uploadDir + File.separator + user + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+                .get(uploadDir + File.separator +  user + File.separator + "transactions" + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
             
             System.out.println(copyLocation.toString());
             
             try {
-            	Files.createDirectory(Paths.get(uploadDir + File.separator + user));
+            	Files.createDirectory(Paths.get(uploadDir + File.separator + user + File.separator + "transactions"));
             } catch (Exception e) {
             	e.getMessage();
             }
@@ -43,7 +43,37 @@ public class FileServiceImpl {
             Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
             
             //process file
-            excelUtilsImpl.saveTransactionsToMongo(uploadDir + File.separator + user + File.separator + file.getOriginalFilename(), user);
+            excelUtilsImpl.saveTransactionsToMongo(uploadDir + File.separator + user + File.separator + "transactions" + File.separator + file.getOriginalFilename(), user);
+            
+            
+        } catch (Exception e) {
+            e.printStackTrace();            
+        }
+    }
+    
+    public void uploadDividendsFile(MultipartFile file, String userSub) {
+    	
+    	String user = userSub.replace("|", "-");
+
+        try {
+        	//save file
+            Path copyLocation = Paths
+            		.get(uploadDir + File.separator +  user + File.separator + "dividends" + File.separator + StringUtils.cleanPath(file.getOriginalFilename()));
+            
+            System.out.println(copyLocation.toString());
+            
+            try {
+            	Files.createDirectory(Paths.get(uploadDir + File.separator + user + File.separator + "dividends"));
+            } catch (Exception e) {
+            	e.getMessage();
+            }
+            
+            
+            
+            Files.copy(file.getInputStream(), copyLocation, StandardCopyOption.REPLACE_EXISTING);
+            
+            //process file
+            excelUtilsImpl.saveDividendsToMongo(uploadDir + File.separator + user + File.separator + "dividends" + File.separator + file.getOriginalFilename(), user);
             
             
         } catch (Exception e) {

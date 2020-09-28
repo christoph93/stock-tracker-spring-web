@@ -35,8 +35,8 @@ public class StockTrackerApplication {
 //		System.out.println("Saving transactions to mongo");
 //		saveTransactionsToMongo();
 
-		System.out.println("Saving dividends to mongo");
-		saveDividendsToMongo();
+//		System.out.println("Saving dividends to mongo");
+//		saveDividendsToMongo();
 
 		System.out.println("Creating symbols from transactions");
 		symbolUtilsImpl.createMissingSymbolsFromTransactions();
@@ -77,8 +77,8 @@ public class StockTrackerApplication {
 //		}
 //	}
 
-	public void saveDividendsToMongo() {
-		excelUtilsImpl.saveDividendsToMongo("./dividends.xls");
-	}
+//	public void saveDividendsToMongo() {
+//		excelUtilsImpl.saveDividendsToMongo("./dividends.xls");
+//	}
 
 }
