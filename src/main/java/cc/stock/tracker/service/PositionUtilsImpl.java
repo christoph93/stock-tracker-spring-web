@@ -34,26 +34,23 @@ public class PositionUtilsImpl implements PositionUtils {
 
 	@Autowired
 	private PositionRepository positionRepository;
-	
+
 	@Autowired
 	private DividendRepository dividendRepository;
 
 	private List<Transaction> transactionList;
-	private Position position;
+	// private Position position;
 	private List<Dividend> dividendList;
 
-	
 	public void updateAllPositions() {
-		//TODO: get user list from auth0
+		// TODO: get user list from auth0
 		ArrayList<String> users = new ArrayList<String>();
 		users.add("auth0-5f6cc420d0e0e00073c901f0");
-		
-		
+
 		users.forEach(u -> updatePositions(u));
-		
-		
+
 	}
-	
+
 	public void updatePositions(String userId) {
 		System.out.println("updatind positions for " + userId);
 		HashSet<String> symbols = new HashSet<>();
@@ -78,11 +75,11 @@ public class PositionUtilsImpl implements PositionUtils {
 	/*
 	 * update all fields based on transactions, dividends and current prices
 	 */
-	public void update(Position positionArg) {
-		this.position = positionArg;
+	public Position update(Position position) {
+		// this.position = positionArg;
 		this.transactionList = new ArrayList<Transaction>();
 		this.dividendList = new ArrayList<Dividend>();
-		String positionAlias = this.position.getSymbol();
+		String positionAlias = position.getSymbol();
 		List<Alias> aliasList = aliasRepository.findByAlias(positionAlias);
 		List<String> symbolList = new ArrayList<String>();
 
@@ -96,36 +93,34 @@ public class PositionUtilsImpl implements PositionUtils {
 		} else {
 			aliasList.forEach(a -> symbolList.add(a.getSymbol()));
 		}
-		
-		
 
 		symbolList.forEach(s -> {
-			transactionList.addAll(transactionRepository.findBySymbolAndUserId(s, this.position.getUserId()));			
-			dividendList.addAll(dividendRepository.findBySymbolAndUserId(s, this.position.getUserId()));
+			transactionList.addAll(transactionRepository.findBySymbolAndUserId(s, position.getUserId()));
+			dividendList.addAll(dividendRepository.findBySymbolAndUserId(s, position.getUserId()));
 		});
-		
-		this.position.setTransactions(transactionList);
-		this.position.setDividends(dividendList);
 
-		updateAverages();
+//		this.position.setTransactions(transactionList);
+//		this.position.setDividends(dividendList);
 
-		updateCurrentPosition();
-		
-		updateDividends();
+		updateAverages(position);
 
-		positionRepository.save(this.position);
+		updateDividends(position);
 
-		System.out.println("Updated position: " + positionRepository.findById(this.position.getId()));
+		updateCurrentPosition(position);
+
+		positionRepository.save(position);
+		System.out.println("Updated position: " + positionRepository.findById(position.getId()));
+		return position;
 
 	}
-	
-	private void updateDividends(){
-		double total = dividendList.stream().reduce(0.0, (subtotal, e) -> subtotal + e.getNetValue(), Double::sum );
-		this.position.setTotalDividends(total);
-		this.position.setDividendCount(dividendList.size());		
+
+	private void updateDividends(Position position) {
+		double total = dividendList.stream().reduce(0.0, (subtotal, e) -> subtotal + e.getNetValue(), Double::sum);
+		position.setTotalDividends(total);
+		position.setDividendCount(dividendList.size());
 	}
 
-	private void updateAverages() {
+	private void updateAverages(Position position) {
 		double totalPositionBought = 0, totalPositionSold = 0;
 		double totalUnitsBought = 0, totalUnitsSold = 0;
 		double avgBuyPrice = 0, avgSellPrice = 0;
@@ -147,15 +142,15 @@ public class PositionUtilsImpl implements PositionUtils {
 
 		avgBuyPrice = totalPositionBought / totalUnitsBought;
 
-		this.position.setAvgBuyPrice(avgBuyPrice);
-		this.position.setAvgSellPrice(avgSellPrice);
-		this.position.setTotalPositionBought(totalPositionBought);
-		this.position.setTotalPositionSold(totalPositionSold);
-		this.position.setTotalUnitsBought(totalUnitsBought);
-		this.position.setTotalUnitsSold(totalUnitsSold);
+		position.setAvgBuyPrice(avgBuyPrice);
+		position.setAvgSellPrice(avgSellPrice);
+		position.setTotalPositionBought(totalPositionBought);
+		position.setTotalPositionSold(totalPositionSold);
+		position.setTotalUnitsBought(totalUnitsBought);
+		position.setTotalUnitsSold(totalUnitsSold);
 	}
 
-	private void updateCurrentPosition() {		
+	private void updateCurrentPosition(Position position) {
 
 		Symbol symbol = symbolRepository.findBySymbol(position.getSymbol());
 
@@ -164,50 +159,51 @@ public class PositionUtilsImpl implements PositionUtils {
 			return;
 		}
 
-		this.position.setCurrentPrice(symbol.getLastPrice());
-		this.position.setLastUpdateDate(symbol.getLastPriceDate());
+		position.setCurrentPrice(symbol.getLastPrice());
+		position.setLastUpdateDate(symbol.getLastPriceDate());
 
-		double currentOwnedUnits = this.position.getTotalUnitsBought() - this.position.getTotalUnitsSold();
+		double currentOwnedUnits = position.getTotalUnitsBought() - position.getTotalUnitsSold();
+		position.setCurrentOwnedUnits(currentOwnedUnits);
 
-		double profitLoss;
-		double profitLossPercent;
-		
+		double trades = 0;
+
 		/*
-		 * TODO: review these formulas. Process dividends
+		 * 
+		 * trades, tradesPercent, , , currentOwnedUnits,
+		 * 
 		 */
 
-		if (currentOwnedUnits > 0) {
-			this.position.setOpen();
-			this.position.setCurrentOwnedUnits(currentOwnedUnits);
-			this.position.setOpenPosition(currentOwnedUnits * this.position.getCurrentPrice());
-			profitLoss =
-					// profit/loss from sales
-					(position.getAvgBuyPrice() * position.getTotalUnitsSold()
-							- position.getAvgSellPrice() * position.getTotalUnitsSold());
+		// position
+		double auxPosition = currentOwnedUnits * position.getCurrentPrice();
+		position.setPosition(auxPosition);
 
-			this.position.setProfitLossFromSales(profitLoss);
+		// openResult
+		position.setOpenResult((position.getCurrentOwnedUnits() * position.getCurrentPrice())
+				- (position.getCurrentOwnedUnits() * position.getAvgBuyPrice()));
 
-			this.position.setResult(this.position.getOpenPosition() + position.getProfitLossFromSales()
-					- (position.getTotalPositionBought() - position.getTotalPositionSold()));
+		// openResultPercent
+		if(currentOwnedUnits > 0) {
+		position.setOpenResultPercent( (position.getOpenResult() / (position.getCurrentOwnedUnits() * position.getAvgBuyPrice())) * 100 );
+		} else {
+			position.setOpenResultPercent(0);
+		}
+
+		trades = (position.getAvgSellPrice() - position.getAvgBuyPrice()) * position.getTotalUnitsSold();
+
+		position.setTrades(trades);
+
+		if (position.getAvgSellPrice() != 0) {
+			position.setTradesPercent(
+					(position.getAvgSellPrice() - position.getAvgBuyPrice()) / position.getAvgBuyPrice());
+		} else {
+			position.setTradesPercent(0);
+		}
 
 //			this.position.setResult((this.position.getTotalUnitsSold() * this.position.getAvgSellPrice())
 //					- (this.position.getTotalUnitsSold() * this.position.getAvgBuyPrice())
 //					+ (( this.position.getAvgBuyPrice() * this.position.getCurrentOwnedUnits() - this.position.getOpenPosition()) ) );
 
-			profitLossPercent = this.position.getResult() / this.position.getTotalPositionBought() * 100;
-
-			this.position.setResultPercent(profitLossPercent);
-
-		} else {
-			this.position.setClosed();
-			this.position.setCurrentOwnedUnits(currentOwnedUnits);
-			profitLoss = this.position.getTotalPositionBought() - this.position.getTotalPositionSold();
-			this.position.setClosedPosition(profitLoss);
-			this.position.setResult(this.position.getTotalPositionSold() - this.position.getTotalPositionBought());
-
-		}
-
-		this.position.setLastUpdateDate(Date.from(Instant.now()));
+		position.setLastUpdateDate(Date.from(Instant.now()));
 
 	}
 

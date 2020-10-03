@@ -10,7 +10,9 @@ import cc.stock.tracker.document.Position;
 import cc.stock.tracker.repository.PositionRepository;
 import cc.stock.tracker.service.PositionUtilsImpl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -18,26 +20,46 @@ public class PositionController {
 
 	@Autowired
 	private PositionRepository positionRepository;
-	
+
 	@Autowired
 	private PositionUtilsImpl positionUtils;
-	
+
 	@GetMapping("/positionBySymbol")
-	public Position getBySymbol(@RequestParam(value="symbol") String symbol, @RequestParam(value="userId") String userId) {		
-		return positionRepository.findBySymbolAndUserId(symbol, userId);				
+	public Position getBySymbol(@RequestParam(value = "symbol") String symbol,
+			@RequestParam(value = "userId") String userId) {
+		return positionRepository.findBySymbolAndUserId(symbol, userId);
 	}
-	
+
 	@GetMapping("/positionsByUser")
-	public List<Position> getByUserId(@RequestParam(value="userId") String userId) {
-		positionUtils.updatePositions(userId);		
-		return positionRepository.findByUserId(userId);				
+	public List<Position> getByUserId(@RequestParam(value = "userId") String userId) {
+		positionUtils.updatePositions(userId);
+		return positionRepository.findByUserId(userId);
+	}
+
+	@GetMapping("/positionIdsByUserId")
+	public List<String> getPositionIdsByUserId(@RequestParam(value="userId") String userId) {
+		List<String> ids = new ArrayList<String>();
+		positionRepository.findPositionIdsByUserId(userId).forEach(e -> {
+			ids.add(e.getId());
+		});
+		return ids;
+	}
+	
+	@GetMapping("/positionById")
+	public Position getPositionById(@RequestParam(value="id") String id) {
+		System.out.println("finding position " + id);
+		Optional<Position> opt = positionRepository.findById(id);
+		if(opt.isPresent()) {
+			return positionUtils.update(opt.get());			
+		}
+		return null;		
 	}
 	
 	
+
 	@GetMapping("/allPositions")
-	public List<Position> getAllPositions(){
+	public List<Position> getAllPositions() {
 		return positionRepository.findAll();
 	}
-	
-	
+
 }

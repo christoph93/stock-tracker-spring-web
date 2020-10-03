@@ -13,32 +13,34 @@ public class Position {
 	private String id;
 
 	private String symbol, userId;
-	private double avgBuyPrice, 
-				   avgSellPrice, 
-				   totalUnitsBought, 
-				   totalUnitsSold, 
-				   totalPositionBought, 
-				   totalPositionSold,
-				   result, 
-				   resultPercent, 
-				   profitLossFromSales, 
-				   openPosition, 
-				   currentOwnedUnits, 
-				   closedPosition, 
-				   currentPrice,
-				   totalDividends,
-				   dividendCount;
-	transient List<Transaction> transactions;
-	transient List<Dividend> dividends;
-	private boolean isOpen, isDeleted;
+	private double avgBuyPrice, avgSellPrice, totalUnitsBought, totalUnitsSold, totalPositionBought, totalPositionSold,
+			trades, tradesPercent, position, openResult, openResultPercent, currentOwnedUnits, currentPrice,
+			totalDividends, dividendCount;
+	transient List<String> transactions;
+	transient List<String> dividends;
+	private boolean isDeleted;
 	private Date lastUpdateDate;
-	
+
 	public Position(String userId, String symbol) {
 		this.userId = userId;
 		this.symbol = symbol;
 	}
-	
-	
+
+	public double getOpenResult() {
+		return openResult;
+	}
+
+	public void setOpenResult(double openResult) {
+		this.openResult = openResult;
+	}
+
+	public double getOpenResultPercent() {
+		return openResultPercent;
+	}
+
+	public void setOpenResultPercent(double openResultPercent) {
+		this.openResultPercent = openResultPercent;
+	}
 
 	public String getUserId() {
 		return userId;
@@ -56,23 +58,17 @@ public class Position {
 		this.dividendCount = dividendCount;
 	}
 
-	public List<Dividend> getDividends() {
+	public List<String> getDividends() {
 		return dividends;
 	}
 
-	public void setDividends(List<Dividend> dividends) {
+	public void setDividends(List<String> dividends) {
 		this.dividends = dividends;
-	}
-
-	public void setOpen(boolean isOpen) {
-		this.isOpen = isOpen;
 	}
 
 	public void setDeleted(boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
-
-
 
 	public String getId() {
 		return id;
@@ -82,12 +78,12 @@ public class Position {
 		this.id = id;
 	}
 
-	public double getOpenPosition() {
-		return openPosition;
+	public double getPosition() {
+		return position;
 	}
 
-	public void setOpenPosition(double openPosition) {
-		this.openPosition = openPosition;
+	public void setPosition(double openPosition) {
+		this.position = openPosition;
 	}
 
 	public double getCurrentOwnedUnits() {
@@ -96,14 +92,6 @@ public class Position {
 
 	public void setCurrentOwnedUnits(double currentOwnedUnits) {
 		this.currentOwnedUnits = currentOwnedUnits;
-	}
-
-	public double getClosedPosition() {
-		return closedPosition;
-	}
-
-	public void setClosedPosition(double openPositionProfit) {
-		this.closedPosition = openPositionProfit;
 	}
 
 	public double getCurrentPrice() {
@@ -122,40 +110,12 @@ public class Position {
 		this.totalDividends = totalDividends;
 	}
 
-	public boolean isOpen() {
-		return this.isOpen;
-	}
-
-	public void setOpen() {
-		this.isOpen = true;
-	}
-	
-	public void setClosed() {
-		this.isOpen = false;
-	}
-
 	public Date getLastUpdateDate() {
 		return lastUpdateDate;
 	}
 
 	public void setLastUpdateDate(Date lastUpdateDate) {
 		this.lastUpdateDate = lastUpdateDate;
-	}
-
-	public double getResult() {
-		return result;
-	}
-
-	public void setResult(double result) {
-		this.result = result;
-	}
-
-	public double getResultPercent() {
-		return resultPercent;
-	}
-
-	public void setResultPercent(double resultPercent) {
-		this.resultPercent = resultPercent;
 	}
 
 	public double getTotalUnitsBought() {
@@ -214,42 +174,40 @@ public class Position {
 		this.avgSellPrice = avgSellPrice;
 	}
 
-	public List<Transaction> getTransactions() {
+	public List<String> getTransactions() {
 		return transactions;
 	}
 
-	public void setTransactions(List<Transaction> transactions) {
+	public void setTransactions(List<String> transactions) {
 		this.transactions = transactions;
 	}
 
-	public double getProfitLossFromSales() {
-		return profitLossFromSales;
+	public double getTrades() {
+		return trades;
 	}
 
-	public void setProfitLossFromSales(double profitLossFromSales) {
-		this.profitLossFromSales = profitLossFromSales;
+	public void setTrades(double profitLossFromSales) {
+		this.trades = profitLossFromSales;
 	}
-	
+
+	public double getTradesPercent() {
+		return tradesPercent;
+	}
+
+	public void setTradesPercent(double tradesPercent) {
+		this.tradesPercent = tradesPercent;
+	}
+
 	public void delete() {
 		this.isDeleted = true;
 	}
-	
+
 	public void restore() {
 		this.isDeleted = false;
 	}
-	
+
 	public boolean isDeleted() {
 		return this.isDeleted;
 	}
 
-	@Override
-	public String toString() {
-		return "Position [id=" + id + ", symbol=" + symbol + ", avgBuyPrice=" + avgBuyPrice + ", avgSellPrice="
-				+ avgSellPrice + ", totalUnitsBought=" + totalUnitsBought + ", totalUnitsSold=" + totalUnitsSold
-				+ ", totalPositionBought=" + totalPositionBought + ", totalPositionSold=" + totalPositionSold
-				+ ", result=" + result + ", resultPercent=" + resultPercent + ", profitLossFromSales="
-				+ profitLossFromSales + ", openPosition=" + openPosition + ", currentOwnedUnits=" + currentOwnedUnits
-				+ ", closedPosition=" + closedPosition + ", currentPrice=" + currentPrice + ", totalDividends="
-				+ totalDividends + ", isOpen=" + isOpen() + ", lastUpdateDate=" + lastUpdateDate + "]";
-	}
 }
