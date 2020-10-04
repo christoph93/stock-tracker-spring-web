@@ -1,5 +1,6 @@
 package cc.stock.tracker.controller;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,28 +17,31 @@ import cc.stock.tracker.service.FileServiceImpl;
 @Controller
 public class FileController {
 
+	static Logger log = Logger.getLogger(FileController.class.getName());
 	@Autowired
 	FileServiceImpl fileService;
 
 	@PostMapping("/uploadTransactions")
-	public ResponseEntity<String> uploadTransactionsFile(@RequestParam("file") MultipartFile file, @RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
+	public ResponseEntity<String> uploadTransactionsFile(@RequestParam("file") MultipartFile file,
+			@RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
 
 		fileService.uploadTransactionsFile(file, userSub);
-		
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
 
-        return ResponseEntity.status(HttpStatus.OK).body("Test");
+		redirectAttributes.addFlashAttribute("message",
+				"You successfully uploaded " + file.getOriginalFilename() + "!");
+
+		return ResponseEntity.status(HttpStatus.OK).body("Test");
 	}
-	
+
 	@PostMapping("/uploadDividends")
-	public ResponseEntity<String> uploadDividendsFile(@RequestParam("file") MultipartFile file, @RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
+	public ResponseEntity<String> uploadDividendsFile(@RequestParam("file") MultipartFile file,
+			@RequestParam("userSub") String userSub, RedirectAttributes redirectAttributes) {
 
 		fileService.uploadDividendsFile(file, userSub);
-		
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
 
-        return ResponseEntity.status(HttpStatus.OK).body("Test");
+		redirectAttributes.addFlashAttribute("message",
+				"You successfully uploaded " + file.getOriginalFilename() + "!");
+
+		return ResponseEntity.status(HttpStatus.OK).body("Test");
 	}
 }

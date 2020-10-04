@@ -2,7 +2,7 @@ package cc.stock.tracker;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.el.parser.ParseException;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,6 +18,8 @@ import cc.stock.tracker.service.SymbolUtilsImpl;
 @EnableScheduling
 @EnableAsync
 public class StockTrackerApplication {
+
+	static Logger log = Logger.getLogger(StockTrackerApplication.class.getName());
 
 	@Autowired
 	private ExcelUtilsImpl excelUtilsImpl;
@@ -44,9 +46,9 @@ public class StockTrackerApplication {
 		symbolUtilsImpl.createMissingSymbolsFromTransactions();
 
 		System.out.println("Updating aliases");
-		symbolUtilsImpl.updateSymbolAliases();
+		symbolUtilsImpl.updateSymbolAliases();		
+		
 	}
-	
 
 	@Scheduled(fixedDelay = 120000, initialDelay = 120000)
 	public void updateAliases() {
