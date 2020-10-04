@@ -318,7 +318,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 						}
 					}
 
-					if (cellVal.contains("Data Negócio")) {
+					if (cellVal.contains("Data Neg")) {
 //						System.out.println("Found beginning of table!");
 						tableStartColIndex = currentCell.getColumnIndex();
 						tableEndColIndex = tableStartColIndex + 9;
