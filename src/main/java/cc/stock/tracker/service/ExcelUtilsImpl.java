@@ -10,6 +10,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.el.parser.ParseException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -21,8 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import cc.stock.tracker.document.Dividend;
+import cc.stock.tracker.document.Position;
 import cc.stock.tracker.document.Transaction;
 import cc.stock.tracker.repository.DividendRepository;
+import cc.stock.tracker.repository.PositionRepository;
 import cc.stock.tracker.repository.TransactionRepository;
 
 @Service
@@ -33,6 +37,9 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	@Autowired
 	private DividendRepository dividendRepository;
+
+	@Autowired
+	private PositionRepository positionRepository;
 
 	public List<Transaction> saveTransactionsToMongo(String path, String userId) throws ParseException {
 
@@ -53,6 +60,21 @@ public class ExcelUtilsImpl implements ExcelUtils {
 			transactionRepository.deleteByUserId(userId);
 			transactionRepository.saveAll(transactions);
 
+			// create positions based on transactions
+			Set<String> symbols = transactions.stream().map(Transaction::getSymbol).collect(Collectors.toSet());
+			System.out.println(symbols);
+
+			List<Position> positions = positionRepository.findByUserId(userId);
+			Set<String> positionsSet = positions.stream().map(Position::getSymbol).collect(Collectors.toSet());
+
+			symbols.removeAll(positionsSet);
+
+			System.out.println("Missing positions: " + symbols);
+
+			symbols.forEach(s -> {
+				positionRepository.save(new Position(userId, s));
+			});
+
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		}
@@ -63,9 +85,9 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	public List<Dividend> saveDividendsToMongo(String path, String userId) {
 		try {
-			
+
 			File excelFile = new File(path);
-			
+
 			dividendRepository.deleteByUserId(userId);
 			dividendRepository.saveAll(readDividendsExcel(excelFile, userId));
 
@@ -77,7 +99,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 	}
 
-	private ArrayList<Dividend> readDividendsExcel(File  file, String userId) {
+	private ArrayList<Dividend> readDividendsExcel(File file, String userId) {
 		ArrayList<String[]> table;
 		ArrayList<Dividend> dividends = new ArrayList<>();
 
@@ -92,7 +114,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 
 				if (!table.get(i)[0].trim().equals("--")) {
 
-					dividends.add(new Dividend(userId,formatter.parse(table.get(i)[0].trim()), // payDate
+					dividends.add(new Dividend(userId, formatter.parse(table.get(i)[0].trim()), // payDate
 							table.get(i)[1].trim(), // description
 							table.get(i)[2].trim(), // symbol
 							Double.parseDouble(table.get(i)[3].replace("R$", "").trim().replace(",", ".")), // gross
@@ -361,7 +383,7 @@ public class ExcelUtilsImpl implements ExcelUtils {
 					return true;
 				}
 			}
-			
+
 			workbook.close();
 
 		} catch (Exception e) {

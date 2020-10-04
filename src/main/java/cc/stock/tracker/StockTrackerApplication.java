@@ -6,6 +6,7 @@ import org.apache.el.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -15,6 +16,7 @@ import cc.stock.tracker.service.SymbolUtilsImpl;
 
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 public class StockTrackerApplication {
 
 	@Autowired
