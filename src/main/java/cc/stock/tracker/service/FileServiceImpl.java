@@ -1,6 +1,7 @@
 package cc.stock.tracker.service;
 
 import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +33,16 @@ public class FileServiceImpl {
 		try {
 			Files.createDirectory(Paths.get(uploadDir + File.separator + user));
 			Files.createDirectory(Paths.get(uploadDir + File.separator + user + File.separator + "transactions"));
+		} catch (FileAlreadyExistsException e) {
+			System.out.println("File already exists");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			Files.createDirectory(Paths.get(uploadDir + File.separator + user + File.separator + "transactions"));
+		} catch (FileAlreadyExistsException e) {
+			System.out.println("File already exists");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -60,7 +71,16 @@ public class FileServiceImpl {
 
 		try {
 			Files.createDirectory(Paths.get(uploadDir + File.separator + user));
+		} catch (FileAlreadyExistsException e) {
+			System.out.println("File already exists");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
 			Files.createDirectory(Paths.get(uploadDir + File.separator + user + File.separator + "dividends"));
+		} catch (FileAlreadyExistsException e) {
+			System.out.println("File already exists");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
